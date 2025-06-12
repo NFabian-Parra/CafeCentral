@@ -1,0 +1,37 @@
+# .gitignore
+.env
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+env/
+venv/
+bin/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.cache
+.pytest_cache/
+htmlcov/
+.ipynb_checkpoints/
+.mypy_cache/
+.vscode/ # Ignorar configuraciones de VS Code específicas del usuario
+
+# Django
+*.log
+*.pot
+*.mo
+*.orig
+db.sqlite3 # Si usaras SQLite, ignóralo
+media/
+static_root/ # Carpeta para archivos estáticos de producción
+
+# IDEs
+.idea/ # Directorio de configuración de PyCharm/IntelliJ
+
+# Envío de credenciales y archivos sensibles (¡IMPORTANTE!)
+.env # <--- ¡Esto es lo más importante! Nunca subas tu archivo .env
+*.env_* # <---
