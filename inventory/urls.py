@@ -5,6 +5,6 @@ from . import views # Importa las vistas de tu aplicación inventory
 app_name = 'inventory' # Define un namespace para esta app
 
 urlpatterns = [
-    # Aquí iremos añadiendo las URLs específicas de la aplicación 'inventory'
-    # Por ahora, estará vacío hasta que definamos vistas aquí.
+    path('products/', views.product_list_view, name='product_list'),
+    # Aquí puedes añadir más rutas para la app inventory
 ]
