@@ -1,7 +1,11 @@
 
 from django.shortcuts import render
 from .models import Product # Importa el modelo Product
+from django.contrib.auth.decorators import login_required
+from .decorators import role_required
 
+@login_required
+@role_required(allowed_roles=['OWNER', 'ADMIN', 'EMPLOYEE'])
 def product_list_view(request):
     """
     Vista para mostrar la lista de productos en el inventario.

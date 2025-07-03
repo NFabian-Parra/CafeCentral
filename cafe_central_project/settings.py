@@ -133,3 +133,13 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'inventory.CustomUser'
+
+
+# Redirección después de iniciar sesión
+LOGIN_REDIRECT_URL = '/' # Redirige a la página de inicio después del login
+
+# URL para el login
+LOGIN_URL = '/accounts/login/' # La URL a la que se redirige si el usuario no está autenticado
+
+# Redirección después de cerrar sesión
+LOGOUT_REDIRECT_URL = '/' # Redirige a la página de inicio después del logout

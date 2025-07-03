@@ -33,5 +33,5 @@ static_root/ # Carpeta para archivos estáticos de producción
 .idea/ # Directorio de configuración de PyCharm/IntelliJ
 
 # Envío de credenciales y archivos sensibles (¡IMPORTANTE!)
-.env # <--- ¡Esto es lo más importante! Nunca subas tu archivo .env
+.env 
 *.env_* # <---

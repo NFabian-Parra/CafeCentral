@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include 
-from . import views  # Importa las vistas del proyecto
+from cafe_central_project import views as project_views  # Importa las vistas del proyecto
 
 
 """urlpatterns = [
@@ -24,7 +24,7 @@ from . import views  # Importa las vistas del proyecto
 ]"""
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.home_view, name='home'), # Nuestra nueva URL de inicio
-    # Incluir las URLs de la aplicación inventory
+    path('', project_views.home_view, name='home'), # URL de inicio
     path('inventory/', include('inventory.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
