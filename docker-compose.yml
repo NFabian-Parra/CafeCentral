@@ -1,0 +1,23 @@
+version: '3.8' # Versión de Docker Compose
+
+services:
+  db:
+    image: postgres:15 # Usamos la imagen de PostgreSQL 15
+    container_name: cafe_central_postgres # Nombre del contenedor
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - cafe_central_db_data:/var/lib/postgresql/data # Monta el volumen nombrado para persistencia
+    ports:
+      - "5432:5432" # Mapea el puerto de la base de datos
+    restart: unless-stopped # Reinicia el contenedor si se detiene inesperadamente
+    healthcheck: # Opcional pero recomendado: verifica si la DB está lista
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cafe_central_db_data: # Define el volumen nombrado
