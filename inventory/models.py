@@ -31,7 +31,10 @@ class CustomUser(AbstractUser):
     """
     Modelo de usuario personalizado que extiende AbstractUser e incluye un campo de rol.
     """
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True,
+    role = models.ForeignKey(Role, 
+                             on_delete=models.SET_NULL,
+                             null=True, 
+                             blank=True,
                              related_name='users_with_role',
                              help_text="Rol del usuario en el sistema (Empleado, Administrador, Propietario).")
 
