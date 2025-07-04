@@ -6,10 +6,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin #
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView # Importa las CBV
 from django.views import View # Importa la clase base View para vistas personalizadas
 from django.forms import inlineformset_factory # Para gestionar formularios relacionados
+from django.utils import timezone # Para asignar la hora de resolución
 
-from .models import Product, Supplier, CustomUser, DailySalesSession, SaleItem
+from .models import Product, Supplier, CustomUser, DailySalesSession, SaleItem, StockAlert
 from .decorators import role_required # Tu decorador personalizado
-from .forms import ProductForm, SupplierForm, DailySalesSessionForm, SaleItemForm
+from .forms import ProductForm, SupplierForm, DailySalesSessionForm, SaleItemForm, StockAlertForm
 
 # product_list_view (función) antes de Opción con CBV
 # @login_required
@@ -33,7 +34,7 @@ class RoleRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     allowed_roles = []
 
     def test_func(self):
-        # Asegúrate de que el usuario esté autenticado
+        # Asegúra que el usuario esté autenticado
         if not self.request.user.is_authenticated:
             return False
         # Verifica si el rol del usuario está en los roles permitidos
@@ -48,28 +49,26 @@ class ProductListView(RoleRequiredMixin, ListView):
     model = Product
     template_name = 'inventory/product_list.html' # Reutilizamos la plantilla existente
     context_object_name = 'products'
-    # Puedes añadir un título aquí para la plantilla
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Inventario de Productos'
         return context
-
     allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
 
 
 class ProductDetailView(RoleRequiredMixin, DetailView):
     model = Product
-    template_name = 'inventory/product_detail.html' # Nueva plantilla
+    template_name = 'inventory/product_detail.html'
     context_object_name = 'product'
     allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
 
 
 class ProductCreateView(RoleRequiredMixin, CreateView):
     model = Product
-    form_class = ProductForm # Usa el formulario que acabamos de crear
-    template_name = 'inventory/product_form.html' # Nueva plantilla para crear/editar
+    form_class = ProductForm
+    template_name = 'inventory/product_form.html'
     success_url = reverse_lazy('inventory:product_list') # Redirige a la lista después de crear
-    allowed_roles = ['OWNER', 'ADMIN'] # Solo OWNER y ADMIN pueden crear productos
+    allowed_roles = ['OWNER', 'ADMIN']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -80,9 +79,9 @@ class ProductCreateView(RoleRequiredMixin, CreateView):
 class ProductUpdateView(RoleRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
-    template_name = 'inventory/product_form.html' # Reutiliza la plantilla de formulario
+    template_name = 'inventory/product_form.html'
     success_url = reverse_lazy('inventory:product_list')
-    allowed_roles = ['OWNER', 'ADMIN'] # Solo OWNER y ADMIN pueden actualizar productos
+    allowed_roles = ['OWNER', 'ADMIN']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -92,25 +91,22 @@ class ProductUpdateView(RoleRequiredMixin, UpdateView):
 
 class ProductDeleteView(RoleRequiredMixin, DeleteView):
     model = Product
-    template_name = 'inventory/product_confirm_delete.html' # Nueva plantilla para confirmar eliminación
+    template_name = 'inventory/product_confirm_delete.html'
     success_url = reverse_lazy('inventory:product_list')
-    allowed_roles = ['OWNER', 'ADMIN'] # Solo OWNER y ADMIN pueden eliminar productos
+    allowed_roles = ['OWNER', 'ADMIN']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Eliminar Producto'
         return context
 
-# Puedes decidir si quieres reemplazar product_list_view (función) con ProductListView (clase)
-# Por ahora, mantendremos ambas, pero eventualmente puedes usar solo la CBV.
-
 # --- VISTAS BASADAS EN CLASES (CBV) para CRUD de Proveedores ---
 
 class SupplierListView(RoleRequiredMixin, ListView):
     model = Supplier
-    template_name = 'inventory/supplier_list.html' # Nueva plantilla
+    template_name = 'inventory/supplier_list.html'
     context_object_name = 'suppliers'
-    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE'] # Empleados pueden ver proveedores
+    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -120,7 +116,7 @@ class SupplierListView(RoleRequiredMixin, ListView):
 
 class SupplierDetailView(RoleRequiredMixin, DetailView):
     model = Supplier
-    template_name = 'inventory/supplier_detail.html' # Nueva plantilla
+    template_name = 'inventory/supplier_detail.html'
     context_object_name = 'supplier'
     allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
 
@@ -132,10 +128,10 @@ class SupplierDetailView(RoleRequiredMixin, DetailView):
 
 class SupplierCreateView(RoleRequiredMixin, CreateView):
     model = Supplier
-    form_class = SupplierForm # Usa el formulario que acabamos de crear
-    template_name = 'inventory/supplier_form.html' # Nueva plantilla para crear/editar
-    success_url = reverse_lazy('inventory:supplier_list') # Redirige a la lista después de crear
-    allowed_roles = ['OWNER', 'ADMIN'] # Solo OWNER y ADMIN pueden crear proveedores
+    form_class = SupplierForm
+    template_name = 'inventory/supplier_form.html'
+    success_url = reverse_lazy('inventory:supplier_list')
+    allowed_roles = ['OWNER', 'ADMIN']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -146,9 +142,9 @@ class SupplierCreateView(RoleRequiredMixin, CreateView):
 class SupplierUpdateView(RoleRequiredMixin, UpdateView):
     model = Supplier
     form_class = SupplierForm
-    template_name = 'inventory/supplier_form.html' # Reutiliza la plantilla de formulario
+    template_name = 'inventory/supplier_form.html'
     success_url = reverse_lazy('inventory:supplier_list')
-    allowed_roles = ['OWNER', 'ADMIN'] # Solo OWNER y ADMIN pueden actualizar proveedores
+    allowed_roles = ['OWNER', 'ADMIN']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -158,9 +154,9 @@ class SupplierUpdateView(RoleRequiredMixin, UpdateView):
 
 class SupplierDeleteView(RoleRequiredMixin, DeleteView):
     model = Supplier
-    template_name = 'inventory/supplier_confirm_delete.html' # Nueva plantilla para confirmar eliminación
+    template_name = 'inventory/supplier_confirm_delete.html'
     success_url = reverse_lazy('inventory:supplier_list')
-    allowed_roles = ['OWNER', 'ADMIN'] # Solo OWNER y ADMIN pueden eliminar proveedores
+    allowed_roles = ['OWNER', 'ADMIN']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -173,7 +169,7 @@ class DailySalesSessionListView(RoleRequiredMixin, ListView):
     template_name = 'inventory/dailysalessession_list.html'
     context_object_name = 'sessions'
     ordering = ['-sale_date'] # Ordenar por fecha más reciente primero
-    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE'] # Empleados pueden ver sesiones
+    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -200,9 +196,9 @@ class DailySalesSessionDetailView(RoleRequiredMixin, DetailView):
 class DailySalesSessionCreateView(RoleRequiredMixin, CreateView):
     model = DailySalesSession
     form_class = DailySalesSessionForm
-    template_name = 'inventory/dailysalessession_form.html' # plantilla para crear/editar
+    template_name = 'inventory/dailysalessession_form.html'
     success_url = reverse_lazy('inventory:dailysalessession_list')
-    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE'] # Empleados pueden crear sesiones
+    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
 
     def form_valid(self, form):
         # Asignar automáticamente el usuario logueado como 'registered_by_user'
@@ -230,9 +226,9 @@ class DailySalesSessionUpdateView(RoleRequiredMixin, UpdateView):
 
 class DailySalesSessionDeleteView(RoleRequiredMixin, DeleteView):
     model = DailySalesSession
-    template_name = 'inventory/dailysalessession_confirm_delete.html' #
+    template_name = 'inventory/dailysalessession_confirm_delete.html'
     success_url = reverse_lazy('inventory:dailysalessession_list')
-    allowed_roles = ['OWNER', 'ADMIN'] # Solo OWNER y ADMIN pueden eliminar sesiones
+    allowed_roles = ['OWNER', 'ADMIN']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -255,13 +251,11 @@ class SaleItemCreateView(RoleRequiredMixin, View):
         if form.is_valid():
             sale_item = form.save(commit=False)
             sale_item.sale_session = session
-            # Calcula el subtotal aquí o asegúrate que el save del modelo lo haga
-            # El modelo ya tiene la lógica de save para subtotal y stock.
             sale_item.save()
             return redirect('inventory:dailysalessession_detail', pk=pk)
         else:
             # Si el formulario no es válido, volvemos a la página de detalle con los errores
-            # Esto es un poco más complejo porque necesitamos renderizar la página de detalle
+            # Esto es un poco más complejo porque se renderiza la página de detalle
             # con el contexto completo y el formulario con errores.
             # Para una solución rápida, podríamos redirigir con un mensaje de error (usando messages framework)
             # o pasar los errores a la URL como parámetros, pero lo ideal es renderizar.
@@ -270,10 +264,56 @@ class SaleItemCreateView(RoleRequiredMixin, View):
             context = {
                 'session': session,
                 'sale_items': session.sale_items.all(),
-                'sale_item_form': form, # Pasamos el formulario con errores
+                'sale_item_form': form, # Se pasa el formulario con errores
                 'page_title': f"Detalles de Sesión - {session.sale_date.strftime('%Y-%m-%d')}"
             }
             return render(request, 'inventory/dailysalessession_detail.html', context)
+
+# --- NUEVAS VISTAS BASADAS EN CLASES (CBV) para la gestión de StockAlerts ---
+
+class StockAlertListView(RoleRequiredMixin, ListView):
+    model = StockAlert
+    template_name = 'inventory/stockalert_list.html'
+    context_object_name = 'alerts'
+    ordering = ['-alert_timestamp']
+    # Los empleados pueden ver las alertas, pero solo los admins/owners las resuelven.
+    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
+
+    def get_queryset(self):
+        # Opcional:  filtrar para mostrar solo las alertas no resueltas por defecto
+        # return StockAlert.objects.filter(resolved=False).order_by('-alert_timestamp')
+        return super().get_queryset()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Alertas de Stock'
+        context['active_alerts_count'] = StockAlert.objects.filter(resolved=False).count()
+        return context
+
+
+class StockAlertUpdateView(RoleRequiredMixin, UpdateView):
+    model = StockAlert
+    form_class = StockAlertForm
+    template_name = 'inventory/stockalert_form.html'
+    success_url = reverse_lazy('inventory:stockalert_list')
+    # Solo OWNER y ADMIN pueden resolver alertas
+    allowed_roles = ['OWNER', 'ADMIN']
+
+    def form_valid(self, form):
+        # Si la alerta se está marcando como resuelta, asigna el usuario y el timestamp
+        if form.instance.resolved and not self.object.resolved: # Si cambia de no resuelta a resuelta
+            form.instance.resolved_by_user = self.request.user
+            form.instance.resolved_timestamp = timezone.now()
+        elif not form.instance.resolved and self.object.resolved: # Si se desmarca como resuelta
+            form.instance.resolved_by_user = None
+            form.instance.resolved_timestamp = None
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['alert'] = self.get_object() # Esto asegura que el objeto de alerta esté disponible como 'alert'
+        context['page_title'] = 'Resolver Alerta de Stock'
+        return context
 
 # Consideración: Para editar/eliminar SaleItem, se puede usar un enfoque similar (UpdateView/DeleteView)
 # o gestionar directamente desde la página de detalle de la sesión con JavaScript para una mejor UX.

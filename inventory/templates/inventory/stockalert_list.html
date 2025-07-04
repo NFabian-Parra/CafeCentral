@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <p>Hay <strong>{{ active_alerts_count }}</strong> alertas de stock activas.</p>
+
+    {% if alerts %}
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Stock en Alerta</th>
+                <th>Nivel Mínimo</th>
+                <th>Fecha de Alerta</th>
+                <th>Estado</th>
+                <th>Resuelta Por</th>
+                <th>Fecha Resolución</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alert in alerts %}
+            <tr {% if not alert.resolved %}class="alert-low-stock"{% endif %}> {# Usamos la clase CSS definida #}
+                <td><a href="{% url 'inventory:product_detail' pk=alert.product.pk %}">{{ alert.product.name }}</a></td>
+                <td>{{ alert.current_stock_at_alert }} {{ alert.product.get_unit_of_measurement_display }}</td>
+                <td>{{ alert.product.minimum_stock_level }} {{ alert.product.get_unit_of_measurement_display }}</td>
+                <td>{{ alert.alert_timestamp|date:"d M Y H:i" }}</td>
+                <td>
+                    {% if alert.resolved %}
+                        Resuelta
+                    {% else %}
+                        Activa
+                    {% endif %}
+                </td>
+                <td>{{ alert.resolved_by_user.username|default:"N/A" }}</td>
+                <td>{{ alert.resolved_timestamp|date:"d M Y H:i"|default:"N/A" }}</td>
+                <td>
+                    {% if not alert.resolved %}
+                        <a href="{% url 'inventory:stockalert_resolve' pk=alert.pk %}" class="button small-button">Resolver</a>
+                    {% else %}
+                        <a href="{% url 'inventory:stockalert_resolve' pk=alert.pk %}" class="button small-button">Ver/Editar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center;">No hay alertas de stock registradas.</p>
+    {% endif %}
+{% endblock %}

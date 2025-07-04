@@ -1,10 +1,9 @@
-# inventory/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone # Para fechas y horas
+from decimal import Decimal # Importar Decimal para precisión en cálculos
 
 # --- MODELOS DE ROLES Y USUARIOS ---
-# Django ya tiene un sistema de usuario robusto. Lo extenderemos para nuestros roles.
 
 class Role(models.Model):
     """
@@ -26,7 +25,6 @@ class Role(models.Model):
     def __str__(self):
         return self.get_name_display() # Muestra el nombre legible del rol
 
-# Extendemos el modelo de usuario por defecto de Django para añadir el campo de rol.
 class CustomUser(AbstractUser):
     """
     Modelo de usuario personalizado que extiende AbstractUser e incluye un campo de rol.
@@ -69,6 +67,10 @@ class Supplier(models.Model):
     address = models.TextField(blank=True, null=True)
     delivery_days = models.CharField(max_length=255, blank=True, null=True,
                                      help_text="Ej: Lunes, Miércoles, Viernes")
+    # Mantener created_at y updated_at para consistencia de auditoría si se necesitan.
+    # Si no se usan en ningún sitio, podrían eliminarse, pero es buena práctica.
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Proveedor"
@@ -88,8 +90,8 @@ class Product(models.Model):
         ('unit', 'Unidad'),
         ('liter', 'Litro'),
         ('pack', 'Paquete'),
-        ('g', 'Gramo'), # Añadido para mayor granularidad si es necesario
-        ('ml', 'Mililitro'), # Añadido
+        ('g', 'Gramo'),
+        ('ml', 'Mililitro'),
     )
 
     name = models.CharField(max_length=100, unique=True)
@@ -110,7 +112,49 @@ class Product(models.Model):
         ordering = ['name']
 
     def __str__(self):
-        return f"{self.name} ({self.current_stock} {self.unit_of_measurement})"
+        return f"{self.name} ({self.current_stock} {self.get_unit_of_measurement_display()})" # Usar get_unit_of_measurement_display
+
+    def save(self, *args, **kwargs):
+        # Guardar el valor original de current_stock antes de la actualización
+        # Esto es crucial para detectar si el stock ha cambiado
+        original_stock = None
+        if self.pk: # Si el objeto ya existe, obtenemos su estado actual de la base de datos
+            try:
+                original_product = Product.objects.get(pk=self.pk)
+                original_stock = original_product.current_stock
+            except Product.DoesNotExist:
+                pass # Esto no debería pasar si self.pk existe, pero es un buen control
+
+        super().save(*args, **kwargs) # Llama al método save original para guardar el producto
+
+        # Lógica para crear o resolver alertas de stock DESPUÉS de guardar
+        # Usamos Decimal para comparaciones precisas
+        
+        # 1. Lógica para CREAR alertas
+        # Crea una alerta si el stock BAJA y está por debajo/igual al mínimo,
+        # y si NO hay ya una alerta ACTIVA para este producto.
+        # (Esto evita duplicados y alertas falsas al subir stock o guardar sin cambios relevantes).
+        if (original_stock is not None and self.current_stock < original_stock and 
+            self.current_stock <= self.minimum_stock_level):
+            
+            if not StockAlert.objects.filter(product=self, resolved=False).exists():
+                StockAlert.objects.create(
+                    product=self,
+                    current_stock_at_alert=self.current_stock,
+                    alert_timestamp=timezone.now()
+                )
+        
+        # 2. Lógica para RESOLVER alertas
+        # Resuelve alertas si el stock SUBE y SUPERA el nivel mínimo.
+        if (original_stock is not None and self.current_stock > original_stock and
+            self.current_stock > self.minimum_stock_level):
+            
+            active_alerts = StockAlert.objects.filter(product=self, resolved=False)
+            for alert in active_alerts:
+                alert.resolved = True
+                alert.resolved_by_user = None # O podrías buscar un usuario 'sistema' si lo creas.
+                alert.resolved_timestamp = timezone.now()
+                alert.save()
 
 class StockAlert(models.Model):
     """
@@ -120,14 +164,16 @@ class StockAlert(models.Model):
     alert_timestamp = models.DateTimeField(auto_now_add=True) # Se establece al crear la alerta
     current_stock_at_alert = models.DecimalField(max_digits=10, decimal_places=2)
     resolved = models.BooleanField(default=False)
-    resolved_by_user = models.ForeignKey('CustomUser', on_delete=models.SET_NULL, null=True, blank=True,
-                                         related_name='resolved_alerts') # 'CustomUser' para referenciar el modelo como cadena
+    resolved_by_user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True,
+                                         related_name='resolved_alerts')
     resolved_timestamp = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         verbose_name = "Alerta de Stock"
         verbose_name_plural = "Alertas de Stock"
         ordering = ['-alert_timestamp'] # Ordena las alertas más nuevas primero
+        # CRUCIAL: Solo permite UNA alerta activa por producto a la vez
+        unique_together = ('product', 'resolved') # Permite (product_id, False) una vez, y (product_id, True) varias veces.
 
     def __str__(self):
         status = "Resuelta" if self.resolved else "Activa"
@@ -139,11 +185,15 @@ class DailySalesSession(models.Model):
     """
     Representa un registro de ventas diarias o una sesión de ventas.
     """
-    sale_date = models.DateField(default=timezone.now, unique=True) # Una sesión por día
+    # Cambié 'unique=True' a una validación en clean() si necesitas múltiples sesiones por día
+    # Si quieres una sola por día, mantenlo. Asumo que una por día es lo esperado para "Daily"
+    sale_date = models.DateField(default=timezone.now, unique=True) 
     registered_by_user = models.ForeignKey('CustomUser', on_delete=models.SET_NULL, null=True,
-                                           related_name='daily_sales_registered') # 'CustomUser' como cadena
-    created_at = models.DateTimeField(auto_now_add=True)
+                                           related_name='daily_sales_registered')
     notes = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    # Si 'updated_at' es útil para auditoría de la sesión misma, podrías añadirla.
+    # updated_at = models.DateTimeField(auto_now=True) 
 
     class Meta:
         verbose_name = "Sesión de Venta Diaria"
@@ -151,69 +201,66 @@ class DailySalesSession(models.Model):
         ordering = ['-sale_date']
 
     def __str__(self):
-        return f"Ventas del {self.sale_date.strftime('%Y-%m-%d')} por {self.registered_by_user.username if self.registered_by_user else 'N/A'}"
+        # Aseguramos que registered_by_user no sea None
+        user_display = self.registered_by_user.username if self.registered_by_user else 'N/A'
+        return f"Ventas del {self.sale_date.strftime('%Y-%m-%d')} por {user_display}"
 
     @property
     def total_revenue(self):
         """Calcula el total de ingresos para esta sesión de venta."""
-        return self.sale_items.aggregate(total=models.Sum('subtotal'))['total'] or 0
+        # Usa aggregate para eficiencia
+        return self.sale_items.aggregate(total=models.Sum('subtotal'))['total'] or Decimal('0.00')
 
 class SaleItem(models.Model):
     """
     Representa un ítem individual vendido dentro de una DailySalesSession.
     """
     sale_session = models.ForeignKey(DailySalesSession, on_delete=models.CASCADE, related_name='sale_items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sale_records')
+    # Recomendación: on_delete=models.PROTECT para product. No borrar productos si hay ventas.
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='sale_records') 
     quantity_sold = models.DecimalField(max_digits=10, decimal_places=2)
     price_at_sale = models.DecimalField(max_digits=10, decimal_places=2,
-                                        help_text="Precio unitario del producto en el momento de la venta.")
+                                         help_text="Precio unitario del producto en el momento de la venta.")
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, editable=False) # Se calculará
 
     class Meta:
         verbose_name = "Ítem de Venta"
         verbose_name_plural = "Ítems de Venta"
-        unique_together = ('sale_session', 'product') # No se puede vender el mismo producto dos veces en la misma sesión
-        ordering = ['sale_session__sale_date', 'product__name'] # Ordenar por fecha y luego por producto
+        # Impide vender el mismo producto dos veces en la misma sesión
+        unique_together = ('sale_session', 'product') 
+        ordering = ['sale_session__sale_date', 'product__name']
 
     def save(self, *args, **kwargs):
         """
-        Calcula el subtotal antes de guardar y actualiza el stock del producto.
+        Calcula el subtotal antes de guardar y ajusta el stock del producto.
         """
         # Calcular subtotal antes de guardar
         self.subtotal = self.quantity_sold * self.price_at_sale
 
-        # Detectar cambios en la cantidad vendida para ajustar el stock
+        # Lógica para ajustar el stock del producto
         if self.pk: # Si es una actualización de un SaleItem existente
             original_item = SaleItem.objects.get(pk=self.pk)
-            stock_change = self.quantity_sold - original_item.quantity_sold
+            # Diferencia neta en la cantidad vendida
+            stock_change_amount = self.quantity_sold - original_item.quantity_sold
+            # Revertir el stock original y aplicar el nuevo cambio
+            self.product.current_stock -= stock_change_amount
         else: # Si es un nuevo SaleItem
-            stock_change = self.quantity_sold
-
-        super().save(*args, **kwargs) # Guardamos el SaleItem primero para asegurar el PK
-
-        # Ahora actualizamos el stock del producto
-        self.product.current_stock -= stock_change
-        self.product.save(update_fields=['current_stock', 'last_updated'])
-
-        # Lógica para alerta de stock (podría ser un signal o una función externa)
-        # Para el MVP, lo ponemos aquí por simplicidad.
-        if self.product.current_stock <= self.product.minimum_stock_level:
-            # Revisa si ya hay una alerta activa no resuelta para este producto
-            if not StockAlert.objects.filter(product=self.product, resolved=False).exists():
-                StockAlert.objects.create(
-                    product=self.product,
-                    current_stock_at_alert=self.product.current_stock
-                )
-
+            self.product.current_stock -= self.quantity_sold
+        
+        # Primero guardamos el SaleItem. Si el SaleItem tiene un PK nulo, Django lo creará.
+        # Si tiene un PK, lo actualizará.
+        super().save(*args, **kwargs) 
+        
+        # Despues de que SaleItem se ha guardado, guardamos el producto
+        # Esto activa el Product.save() modificado, que manejará las alertas.
+        self.product.save() # Llama al método save del Producto. No necesitamos update_fields aquí.
 
     def delete(self, *args, **kwargs):
         """
         Cuando se elimina un SaleItem, devuelve el stock al producto.
         """
         self.product.current_stock += self.quantity_sold
-        self.product.save(update_fields=['current_stock', 'last_updated'])
-        # Considerar si la eliminación de un SaleItem debería resolver una alerta existente
-        # Esto es lógica de negocio que se podría refinar. Por ahora, no resuelve automáticamente.
+        self.product.save() # Llama al método save del Producto, que manejará las alertas.
         super().delete(*args, **kwargs)
 
 

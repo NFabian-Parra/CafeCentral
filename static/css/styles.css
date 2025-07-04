@@ -97,7 +97,7 @@ tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 .alert-low-stock { /* Para filas de productos con bajo stock */
-    background-color: #ffe0b2;
+    background-color: #ffe0b2; /* Un color suave para alertar (naranja claro) */
 }
 
 /* --- Estilos para botones generales (usados en detail, form, confirm_delete) --- */

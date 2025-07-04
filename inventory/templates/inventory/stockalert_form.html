@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }} para {{ alert.product.name }}</h1>
+    <p><strong>Stock Actual:</strong> {{ alert.current_stock_at_alert }} {{ alert.product.get_unit_of_measurement_display }}</p>
+    <p><strong>Nivel Mínimo:</strong> {{ alert.product.minimum_stock_level }} {{ alert.product.get_unit_of_measurement_display }}</p>
+    <p><strong>Fecha de Alerta:</strong> {{ alert.alert_timestamp|date:"d M Y H:i" }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button">Guardar Cambios</button>
+        <a href="{% url 'inventory:stockalert_list' %}" class="back-link">Cancelar</a>
+    </form>
+{% endblock %}

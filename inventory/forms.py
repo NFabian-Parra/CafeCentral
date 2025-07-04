@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser, Product, Role, Supplier, DailySalesSession, SaleItem
+from .models import CustomUser, Product, Role, Supplier, DailySalesSession, SaleItem, StockAlert
 #import logging
 
 
@@ -141,4 +141,14 @@ class SaleItemForm(forms.ModelForm):
                 self.add_error('price_at_sale', f"El precio de venta ({price_at_sale}) no puede ser menor que el precio de compra ({product.price_per_unit_from_supplier}).")
 
         return cleaned_data                
+
+# ---FORMULARIO PARA StockAlert ---
+class StockAlertForm(forms.ModelForm):
+    class Meta:
+        model = StockAlert
+        fields = ['resolved'] # Solo el campo 'resolved' será editable directamente
+        labels = {
+            'resolved': 'Marcar como Resuelta',
+        }
+
 #  añadir formularios para otros modelos aquí 
