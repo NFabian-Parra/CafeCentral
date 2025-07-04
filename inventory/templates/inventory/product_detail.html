@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} Detalles - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ product.name }}</h1>
+    <p><strong>Descripción:</strong> {{ product.description|default:"N/A" }}</p>
+    <p><strong>Unidad de Medida:</strong> {{ product.get_unit_of_measurement_display }}</p>
+    <p><strong>Stock Actual:</strong> {{ product.current_stock }}</p>
+    <p><strong>Nivel Mínimo de Stock:</strong> {{ product.minimum_stock_level }}</p>
+    <p><strong>Precio de Compra:</strong> ${{ product.price_per_unit_from_supplier }}</p>
+    <p><strong>Proveedor:</strong> {{ product.supplier.name|default:"Sin proveedor asignado" }}</p>
+    <p><strong>Última Actualización:</strong> {{ product.last_updated|date:"d M Y H:i" }}</p>
+
+    <p>
+        <a href="{% url 'inventory:product_update' pk=product.pk %}" class="button">Editar Producto</a>
+        <a href="{% url 'inventory:product_delete' pk=product.pk %}" class="button delete-button">Eliminar Producto</a>
+        <a href="{% url 'inventory:product_list' %}" class="back-link">Volver a la Lista de Productos</a>
+    </p>
+
+{% endblock %}

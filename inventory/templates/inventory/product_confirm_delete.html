@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <p>¿Estás seguro de que quieres eliminar el producto "<strong>{{ product.name }}</strong>"?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="button delete-button">Confirmar Eliminación</button>
+        <a href="{% url 'inventory:product_detail' pk=product.pk %}" class="back-link">Cancelar</a>
+    </form>
+
+{% endblock %}

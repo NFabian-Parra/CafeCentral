@@ -1,58 +1,48 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page_title }} - CafeCentral</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f4; color: #333; }
-        .container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 900px; margin: auto; }
-        h1 { color: #5C2D91; text-align: center; margin-bottom: 30px;}
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #007bff; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
-        .alert-low-stock { background-color: #ffe0b2; } /* Naranja claro para alertas */
-        .back-link { display: block; text-align: center; margin-top: 20px; text-decoration: none; color: #007bff; }
-        .back-link:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>{{ page_title }}</h1>
+{% extends 'base.html' %} {# ¡Importante! Indica que esta plantilla hereda de base.html #}
 
-        {% if products %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Producto</th>
-                    <th>Unidad</th>
-                    <th>Stock Actual</th>
-                    <th>Stock Mínimo</th>
-                    <th>Proveedor</th>
-                    <th>Precio Compra</th>
-                    <th>Última Actualización</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr {% if product.current_stock <= product.minimum_stock_level %}class="alert-low-stock"{% endif %}>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.get_unit_of_measurement_display }}</td>
-                    <td>{{ product.current_stock }}</td>
-                    <td>{{ product.minimum_stock_level }}</td>
-                    <td>{{ product.supplier.name|default:"N/A" }}</td>
-                    <td>${{ product.price_per_unit_from_supplier }}</td>
-                    <td>{{ product.last_updated|date:"d M Y H:i" }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p style="text-align: center;">No hay productos en el inventario.</p>
-        {% endif %}
+{% block title %}{{ page_title }} - CafeCentral{% endblock %} {# Sobrescribe el título #}
 
-        <a href="/" class="back-link">Volver a Inicio</a>
+{% block content %} {# Define el contenido que irá dentro del bloque 'content' de base.html #}
+    <h1>{{ page_title }}</h1>
+
+    <div style="margin-bottom: 20px; text-align: right;">
+        <a href="{% url 'inventory:product_create' %}" class="button">Añadir Nuevo Producto</a>
     </div>
-</body>
-</html>
+
+    {% if products %}
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Unidad</th>
+                <th>Stock Actual</th>
+                <th>Stock Mínimo</th>
+                <th>Proveedor</th>
+                <th>Precio Compra</th>
+                <th>Última Actualización</th>
+                <th>Acciones</th> {# Nueva columna para acciones #}
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr {% if product.current_stock <= product.minimum_stock_level %}class="alert-low-stock"{% endif %}>
+                <td><a href="{% url 'inventory:product_detail' pk=product.pk %}">{{ product.name }}</a></td> {# Enlace al detalle #}
+                <td>{{ product.get_unit_of_measurement_display }}</td>
+                <td>{{ product.current_stock }}</td>
+                <td>{{ product.minimum_stock_level }}</td>
+                <td>{{ product.supplier.name|default:"N/A" }}</td>
+                <td>${{ product.price_per_unit_from_supplier }}</td>
+                <td>{{ product.last_updated|date:"d M Y H:i" }}</td>
+                <td>
+                    <a href="{% url 'inventory:product_update' pk=product.pk %}" class="action-link edit-link">Editar</a>
+                    <a href="{% url 'inventory:product_delete' pk=product.pk %}" class="action-link delete-link">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center;">No hay productos en el inventario.</p>
+    {% endif %}
+
+{% endblock %}

@@ -11,7 +11,7 @@ class CustomUserAdmin(BaseUserAdmin): # Heredamos del UserAdmin renombrado
     # Sobrescribimos fieldsets para el formulario de EDICIÓN (ChangeForm)
     # Aquí, 'password' sí se usa para el enlace "Change password" en el admin.
     fieldsets = (
-        (None, {'fields': ('username', 'password')}), # Deja 'username' y 'password'. Django Admin sabe qué hacer con 'password'.
+        (None, {'fields': ('username', 'password')}), 
         ('Información Personal', {'fields': ('first_name', 'last_name', 'email', 'role')}),
         ('Permisos', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
         ('Fechas Importantes', {'fields': ('last_login', 'date_joined')}),

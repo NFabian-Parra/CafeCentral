@@ -93,6 +93,7 @@ class Product(models.Model):
     )
 
     name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True, help_text="Descripción detallada del producto.")
     unit_of_measurement = models.CharField(max_length=10, choices=UNIT_CHOICES)
     current_stock = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     minimum_stock_level = models.DecimalField(max_digits=10, decimal_places=2, default=0,

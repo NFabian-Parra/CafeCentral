@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ supplier.name }}</h1>
+    <p><strong>Persona de Contacto:</strong> {{ supplier.contact_person|default:"N/A" }}</p>
+    <p><strong>Teléfono:</strong> {{ supplier.phone|default:"N/A" }}</p>
+    <p><strong>Correo Electrónico:</strong> {{ supplier.email|default:"N/A" }}</p>
+    <p><strong>Dirección:</strong> {{ supplier.address|default:"N/A" }}</p>
+    <p><strong>Días de Entrega:</strong> {{ supplier.delivery_days|default:"N/A" }}</p>
+
+    <p>
+        <a href="{% url 'inventory:supplier_update' pk=supplier.pk %}" class="button">Editar Proveedor</a>
+        <a href="{% url 'inventory:supplier_delete' pk=supplier.pk %}" class="button delete-button">Eliminar Proveedor</a>
+        <a href="{% url 'inventory:supplier_list' %}" class="back-link">Volver a la Lista de Proveedores</a>
+    </p>
+
+{% endblock %}

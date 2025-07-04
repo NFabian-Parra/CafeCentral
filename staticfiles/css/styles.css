@@ -1,0 +1,165 @@
+/* --- Estilos de base.html --- */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.navbar {
+    background-color: #333;
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.navbar a {
+    color: white;
+    text-decoration: none;
+    margin-right: 15px;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+.navbar a:hover {
+    background-color: #555;
+}
+.navbar .user-info {
+    font-weight: bold;
+    margin-right: 15px;
+}
+.navbar .logout-link { /* Estilos para el botón de logout */
+    background-color: #dc3545; /* Rojo para logout */
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+}
+.navbar .logout-link:hover {
+    background-color: #c82333;
+}
+.container {
+    flex: 1;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    max-width: 900px;
+    margin: 20px auto;
+    width: 90%;
+}
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px 0;
+    margin-top: auto;
+}
+
+/* --- Estilos de home.html --- */
+.welcome-container {
+    text-align: center;
+}
+.links a {
+    display: inline-block;
+    margin: 10px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+}
+.links a:hover {
+    background-color: #0056b3;
+}
+
+/* --- Estilos de product_list.html y supplier_list.html (tablas) --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+th {
+    background-color: #007bff;
+    color: white;
+}
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+.alert-low-stock { /* Para filas de productos con bajo stock */
+    background-color: #ffe0b2;
+}
+
+/* --- Estilos para botones generales (usados en detail, form, confirm_delete) --- */
+.button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border: none; /* Asegura que los botones no tengan borde adicional */
+    border-radius: 5px;
+    margin-right: 10px; /* Para separar botones */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.button:hover {
+    background-color: #0056b3;
+}
+.small-button { /* Botones más pequeños en listas */
+    padding: 5px 10px;
+    font-size: 0.8em;
+}
+.delete-button { /* Botones de eliminación */
+    background-color: #dc3545;
+}
+.delete-button:hover {
+    background-color: #c82333;
+}
+.back-link { /* Enlaces para volver */
+    display: inline-block;
+    margin-left: 10px; /* Para separarlo de los botones */
+    padding: 10px 15px; /* Para que parezca un botón si es necesario */
+    color: #007bff;
+    text-decoration: none;
+    border: 1px solid #007bff; /* Borde para que se vea como un botón "secundario" */
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+.back-link:hover {
+    background-color: #e7f5ff;
+}
+
+/* --- Estilos para formularios (product_form.html, supplier_form.html) --- */
+form p {
+    margin-bottom: 15px;
+}
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+form input[type="text"],
+form input[type="number"],
+form input[type="email"],
+form textarea,
+form select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+form textarea {
+    resize: vertical;
+}
