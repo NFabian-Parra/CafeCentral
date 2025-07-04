@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>Detalles de Sesión de Venta del {{ session.sale_date|date:"d M Y" }}</h1>
+    <p><strong>Registrado Por:</strong> {{ session.registered_by_user.username|default:"N/A" }}</p>
+    <p><strong>Fecha de Creación:</strong> {{ session.created_at|date:"d M Y H:i" }}</p>
+    <p><strong>Notas:</strong> {{ session.notes|default:"Sin notas." }}</p>
+    <p><strong>Ingresos Totales:</strong> ${{ session.total_revenue|floatformat:2 }}</p>
+
+    <h2 style="margin-top: 30px;">Ítems Vendidos</h2>
+    {% if sale_items %}
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unidad</th>
+                <th>Subtotal</th>
+                </tr>
+        </thead>
+        <tbody>
+            {% for item in sale_items %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity_sold }} {{ item.product.get_unit_of_measurement_display }}</td>
+                <td>${{ item.price_at_sale|floatformat:2 }}</td>
+                <td>${{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No hay ítems de venta registrados para esta sesión aún.</p>
+    {% endif %}
+
+    <h2 style="margin-top: 30px;">Añadir Nuevo Ítem de Venta</h2>
+    <form method="post" action="{% url 'inventory:saleitem_create' pk=session.pk %}">
+        {% csrf_token %}
+        {{ sale_item_form.as_p }}
+        <button type="submit" class="button">Añadir Ítem</button>
+    </form>
+
+    <p style="margin-top: 30px;">
+        <a href="{% url 'inventory:dailysalessession_update' pk=session.pk %}" class="button">Editar Sesión</a>
+        <a href="{% url 'inventory:dailysalessession_delete' pk=session.pk %}" class="button delete-button">Eliminar Sesión</a>
+        <a href="{% url 'inventory:dailysalessession_list' %}" class="back-link">Volver a Sesiones de Venta</a>
+    </p>
+{% endblock %}

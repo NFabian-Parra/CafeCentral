@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <p><a href="{% url 'inventory:dailysalessession_create' %}" class="button">Crear Nueva Sesión</a></p>
+
+    {% if sessions %}
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Registrado Por</th>
+                <th>Ingresos Totales</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in sessions %}
+            <tr>
+                <td><a href="{% url 'inventory:dailysalessession_detail' pk=session.pk %}">{{ session.sale_date|date:"d M Y" }}</a></td>
+                <td>{{ session.registered_by_user.username|default:"N/A" }}</td>
+                <td>${{ session.total_revenue|floatformat:2 }}</td> {# Usa el property total_revenue #}
+                <td>
+                    <a href="{% url 'inventory:dailysalessession_update' pk=session.pk %}" class="button small-button">Editar</a>
+                    <a href="{% url 'inventory:dailysalessession_delete' pk=session.pk %}" class="button small-button delete-button">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center;">No hay sesiones de ventas registradas.</p>
+    {% endif %}
+{% endblock %}

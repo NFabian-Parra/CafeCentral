@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <p>¿Estás seguro de que quieres eliminar la sesión de venta del <strong>{{ session.sale_date|date:"d M Y" }}</strong> (registrada por {{ session.registered_by_user.username|default:"N/A" }})?</p>
+    <p>Esto también eliminará todos los ítems de venta asociados a esta sesión.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="button delete-button">Confirmar Eliminación</button>
+        <a href="{% url 'inventory:dailysalessession_detail' pk=session.pk %}" class="back-link">Cancelar</a>
+    </form>
+{% endblock %}
