@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+
+    <p><strong>Nombre:</strong> {{ role.get_name_display }}</p>
+    <p><strong>Descripción:</strong> {{ role.description|default:"No hay descripción." }}</p>
+
+    <div class="button-group">
+        <a href="{% url 'inventory:role_update' pk=role.pk %}" class="button">Editar Rol</a>
+        <a href="{% url 'inventory:role_delete' pk=role.pk %}" class="button button-delete">Eliminar Rol</a>
+        <a href="{% url 'inventory:role_list' %}" class="back-link">Volver a Roles</a>
+    </div>
+{% endblock %}

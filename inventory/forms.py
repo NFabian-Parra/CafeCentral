@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser, Product, Role, Supplier, DailySalesSession, SaleItem, StockAlert
+from django.utils import timezone
 #import logging
 
 
@@ -38,8 +39,6 @@ class CustomUserChangeForm(UserChangeForm):
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        # Define los campos que quieres que aparezcan en el formulario de tu producto
-        # Puedes excluirlos o incluirlos explícitamente
         fields = [
             'name',
             'description',
@@ -69,7 +68,6 @@ class ProductForm(forms.ModelForm):
 class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
-        # Se puede incluir todos los campos o especificar cuáles quieres
         fields = [
             'name',
             'contact_person',
@@ -151,4 +149,24 @@ class StockAlertForm(forms.ModelForm):
             'resolved': 'Marcar como Resuelta',
         }
 
+# --- AÑADE ESTE NUEVO FORMULARIO PARA Role ---
+class RoleForm(forms.ModelForm):
+    class Meta:
+        model = Role
+        fields = ['name', 'description']
+        labels = {
+            'name': 'Nombre del Rol',
+            'description': 'Descripción del Rol',
+        }
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+    
+    # Opcional: Validación para el campo 'name' para asegurar que sea una de las opciones válidas
+    def clean_name(self):
+        name = self.cleaned_data['name']
+        valid_names = [choice[0] for choice in Role.ROLE_CHOICES]
+        if name not in valid_names:
+            raise forms.ValidationError(f"El nombre del rol '{name}' no es una opción válida.")
+        return name
 #  añadir formularios para otros modelos aquí 

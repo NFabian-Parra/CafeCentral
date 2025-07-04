@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <p>¿Estás seguro de que quieres eliminar el rol "<strong>{{ role.get_name_display }}</strong>"?</p>
+    <p class="warning-text">Esta acción es irreversible y podría afectar a los usuarios asignados a este rol.</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="button button-delete">Sí, Eliminar</button>
+        <a href="{% url 'inventory:role_list' %}" class="back-link">Cancelar</a>
+    </form>
+{% endblock %}

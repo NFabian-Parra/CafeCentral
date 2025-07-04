@@ -8,9 +8,9 @@ from django.views import View # Importa la clase base View para vistas personali
 from django.forms import inlineformset_factory # Para gestionar formularios relacionados
 from django.utils import timezone # Para asignar la hora de resolución
 
-from .models import Product, Supplier, CustomUser, DailySalesSession, SaleItem, StockAlert
+from .models import Product, Supplier, CustomUser, DailySalesSession, SaleItem, StockAlert, Role
 from .decorators import role_required # Tu decorador personalizado
-from .forms import ProductForm, SupplierForm, DailySalesSessionForm, SaleItemForm, StockAlertForm
+from .forms import ProductForm, SupplierForm, DailySalesSessionForm, SaleItemForm, StockAlertForm, RoleForm
 
 # product_list_view (función) antes de Opción con CBV
 # @login_required
@@ -269,7 +269,7 @@ class SaleItemCreateView(RoleRequiredMixin, View):
             }
             return render(request, 'inventory/dailysalessession_detail.html', context)
 
-# --- NUEVAS VISTAS BASADAS EN CLASES (CBV) para la gestión de StockAlerts ---
+# --- BASADAS EN CLASES (CBV) para la gestión de StockAlerts ---
 
 class StockAlertListView(RoleRequiredMixin, ListView):
     model = StockAlert
@@ -318,3 +318,63 @@ class StockAlertUpdateView(RoleRequiredMixin, UpdateView):
 # Consideración: Para editar/eliminar SaleItem, se puede usar un enfoque similar (UpdateView/DeleteView)
 # o gestionar directamente desde la página de detalle de la sesión con JavaScript para una mejor UX.
 # Por ahora, solo se maneja añadir.
+
+# --- VISTAS BASADAS EN CLASES (CBV) para la gestión de Roles ---
+
+class RoleListView(RoleRequiredMixin, ListView):
+    model = Role
+    template_name = 'inventory/role_list.html'
+    context_object_name = 'roles'
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Gestión de Roles'
+        return context
+
+class RoleDetailView(RoleRequiredMixin, DetailView):
+    model = Role
+    template_name = 'inventory/role_detail.html'
+    context_object_name = 'role'
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = f"Detalles del Rol: {self.object.get_name_display()}"
+        return context
+
+class RoleCreateView(RoleRequiredMixin, CreateView):
+    model = Role
+    form_class = RoleForm
+    template_name = 'inventory/role_form.html'
+    success_url = reverse_lazy('inventory:role_list')
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Crear Nuevo Rol'
+        return context
+
+class RoleUpdateView(RoleRequiredMixin, UpdateView):
+    model = Role
+    form_class = RoleForm
+    template_name = 'inventory/role_form.html'
+    success_url = reverse_lazy('inventory:role_list')
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Editar Rol'
+        return context
+
+class RoleDeleteView(RoleRequiredMixin, DeleteView):
+    model = Role
+    template_name = 'inventory/role_confirm_delete.html'
+    success_url = reverse_lazy('inventory:role_list')
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Eliminar Rol'
+        return context
+    

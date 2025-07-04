@@ -36,4 +36,10 @@ urlpatterns = [
     path('alerts/', views.StockAlertListView.as_view(), name='stockalert_list'),
     path('alerts/<int:pk>/resolve/', views.StockAlertUpdateView.as_view(), name='stockalert_resolve'),
     
+    # --- RUTAS para la gestión de Roles ---
+    path('roles/', views.RoleListView.as_view(), name='role_list'),
+    path('roles/add/', views.RoleCreateView.as_view(), name='role_create'),
+    path('roles/<int:pk>/', views.RoleDetailView.as_view(), name='role_detail'),
+    path('roles/<int:pk>/edit/', views.RoleUpdateView.as_view(), name='role_update'),
+    path('roles/<int:pk>/delete/', views.RoleDeleteView.as_view(), name='role_delete'),
 ]
