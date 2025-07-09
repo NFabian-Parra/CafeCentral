@@ -15,16 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include 
-from cafe_central_project import views as project_views  # Importa las vistas del proyecto
+from django.urls import path, include
+from . import views as cafe_central_views # Importa el views.py del mismo directorio
 
-
-"""urlpatterns = [
-    path('admin/', admin.site.urls),
-]"""
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', project_views.home_view, name='home'), # URL de inicio
-    path('inventory/', include('inventory.urls')),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('django.contrib.auth.urls')), # Para rutas de login/logout
+    path('inventory/', include('inventory.urls')), # Incluye las URLs de tu app inventory
+    path('', cafe_central_views.home, name='home'), # La ruta para tu página de inicio
 ]

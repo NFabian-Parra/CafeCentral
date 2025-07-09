@@ -1,21 +1,65 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Inicio - CafeCentral{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
     <div class="welcome-container">
-        <h1>Bienvenido a CafeCentral</h1> {# Podrías usar {{ project_name }} si la pasas desde el contexto #}
+        <h1>Bienvenido a CafeCentral</h1>
         <p>Tu sistema de gestión inteligente para el café.</p>
-        
-        {# Opcional: Puedes quitar estos enlaces si el menú superior los hace redundantes #}
-        <div class="links">
-            {% if user.is_owner %}
-            <a href="{% url 'admin:index' %}">Acceder al Panel de Administración</a>
-            {% endif %}
-            <a href="{% url 'inventory:product_list' %}">Ver Inventario de Productos</a>
-        </div>
     </div>
+
+    {% if user.is_authenticated %}
+        <div class="dashboard-grid">
+            {# Tarjeta de Información General #}
+            <div class="dashboard-card general-info">
+                <h2>Información General</h2>
+                <p><strong>Productos Registrados:</strong> {{ total_products }}</p>
+                <p><strong>Alertas de Stock Activas:</strong> {{ active_stock_alerts_count }}</p>
+                <p><strong>Productos con Stock Bajo:</strong> {{ products_low_stock_count }}</p>
+                <a href="{% url 'inventory:stockalert_list' %}" class="button dashboard-button">Ver Alertas</a>
+                <a href="{% url 'inventory:product_list' %}" class="button dashboard-button">Gestionar Productos</a>
+            </div>
+
+            {# Tarjetas específicas para OWNER o ADMIN #}
+            {% if user.is_owner or user.is_admin %}
+                <div class="dashboard-card sales-summary">
+                    <h2>Ventas de Hoy</h2>
+                    {% if today_sales_session_exists %}
+                        <p><strong>Ingresos Totales:</strong> ${{ total_revenue_today|floatformat:2 }}</p>
+                        <p><strong>Ítems Vendidos:</strong> {{ total_items_sold_today|floatformat:0 }}</p>
+                        <a href="{% url 'inventory:dailysalessession_detail' pk=today_sales_session_pk %}" class="button dashboard-button">Ver Sesión de Ventas</a>
+                    {% else %}
+                        <p>Aún no hay una sesión de ventas registrada para hoy.</p>
+                        <a href="{% url 'inventory:dailysalessession_create' %}" class="button dashboard-button">Crear Sesión de Ventas</a>
+                    {% endif %}
+                </div>
+
+                <div class="dashboard-card user-summary">
+                    <h2>Resumen de Usuarios</h2>
+                    <p><strong>Propietarios:</strong> {{ owner_count }}</p>
+                    <p><strong>Administradores:</strong> {{ admin_count }}</p>
+                    <p><strong>Empleados:</strong> {{ employee_count }}</p>
+                    <a href="{% url 'inventory:user_list' %}" class="button dashboard-button">Gestionar Usuarios</a>
+                    <a href="{% url 'inventory:role_list' %}" class="button dashboard-button">Gestionar Roles</a>
+                </div>
+            {% endif %}
+
+            {# Mensaje/Enlaces para Empleados (o cualquier otro rol) #}
+            {% if user.is_employee and not user.is_owner and not user.is_admin %}
+                <div class="dashboard-card employee-actions">
+                    <h2>Acciones Rápidas</h2>
+                    <p>Como empleado, tu rol principal es gestionar las ventas.</p>
+                    <a href="{% url 'inventory:dailysalessession_create' %}" class="button dashboard-button">Iniciar Nueva Sesión de Ventas</a>
+                </div>
+            {% endif %}
+
+        </div> {# Fin de dashboard-grid #}
+
+    {% else %}
+        <div class="not-logged-in-message">
+            <p>Por favor, <a href="{% url 'login' %}">inicia sesión</a> para acceder al sistema de gestión.</p>
+        </div>
+    {% endif %}
+
 {% endblock %}
-
-
-

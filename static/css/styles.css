@@ -201,3 +201,87 @@ form select {
 form textarea {
     resize: vertical;
 }
+
+/* Estilos para el Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Columnas responsivas */
+    gap: 20px; /* Espacio entre las tarjetas */
+    margin-top: 30px;
+}
+
+/* Estilos para las Tarjetas del Dashboard */
+.dashboard-card {
+    background-color: #f8f8f8; /* Fondo claro para las tarjetas */
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px); /* Pequeño efecto al pasar el ratón */
+}
+
+.dashboard-card h2 {
+    color: #333;
+    font-size: 1.6em;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.dashboard-card p {
+    font-size: 1.1em;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+.dashboard-card strong {
+    color: #007bff; /* Color para los valores importantes */
+}
+
+/* Estilos específicos para los botones dentro del dashboard-card */
+.dashboard-button {
+    display: inline-block; /* Para que ocupen solo el espacio necesario */
+    margin: 10px 5px 0 5px; /* Espacio entre botones */
+    padding: 10px 20px;
+    font-size: 1em;
+    text-decoration: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.dashboard-button:hover {
+    background-color: #0056b3;
+}
+
+/* Mensaje para usuarios no logueados */
+.not-logged-in-message {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 1.2em;
+    color: #666;
+}
+
+.not-logged-in-message a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.not-logged-in-message a:hover {
+    text-decoration: underline;
+}
+
+/* Estilos para las tarjetas específicas*/
+.general-info { background-color: #e9f7ef; border-color: #c3e6cb; } /* Verde claro */
+.sales-summary { background-color: #e0f2f7; border-color: #a7d9f0; } /* Azul claro */
+.user-summary { background-color: #f7ede0; border-color: #f0c3a7; } /* Naranja claro */
+.employee-actions { background-color: #f4e0f7; border-color: #d9a7f0; } /* Morado claro */
