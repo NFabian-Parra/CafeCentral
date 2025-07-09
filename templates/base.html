@@ -7,32 +7,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CafeCentral{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    {# Opcional: Si tienes estilos específicos para el nuevo menú, agrégalos aquí o en styles.css #}
 </head>
 <body>
     <nav class="navbar">
-        <div>
-            <a href="{% url 'home' %}">Inicio</a>
-            <a href="{% url 'inventory:product_list' %}">Inventario</a>
-            <a href="{% url 'admin:index' %}">Admin</a>
-        </div>
-        <div>
+        <div class="navbar-left">
+            <a href="{% url 'home' %}" class="navbar-brand">CafeCentral</a> {# Usar una clase para el logo/marca #}
+            
+            {# Enlaces Generales para todos los autenticados #}
             {% if user.is_authenticated %}
-                <span class="user-info">Hola, {{ user.username }}</span>
+                <a href="{% url 'inventory:product_list' %}" class="nav-link">Productos</a>
+                <a href="{% url 'inventory:supplier_list' %}" class="nav-link">Proveedores</a>
+                <a href="{% url 'inventory:dailysalessession_list' %}" class="nav-link">Ventas</a>
+                <a href="{% url 'inventory:stockalert_list' %}" class="nav-link">Alertas Stock</a>
+
+                {# Enlaces específicos por rol #}
+                {% if user.is_owner %}
+                    <a href="{% url 'inventory:role_list' %}" class="nav-link">Gestionar Roles</a>
+                    <a href="{% url 'inventory:user_list' %}" class="nav-link">Gestionar Usuarios</a>
+                    {# Considerar si el admin:index sigue siendo necesario con la UI mejorada #}
+                    <a href="{% url 'admin:index' %}" class="nav-link">Admin Panel</a> 
+                {% elif user.is_admin %}
+                    {# Si el admin tiene acceso a alguna otra cosa específica, iría aquí #}
+                    <a href="{% url 'admin:index' %}" class="nav-link">Admin Panel</a>
+                {% endif %}
+            {% endif %}
+        </div>
+        
+        <div class="navbar-right">
+            {% if user.is_authenticated %}
+                <span class="user-info">Hola, {{ user.username }} ({{ user.role.get_name_display|default:"Sin Rol" }})</span>
                 <form action="{% url 'logout' %}" method="post" style="display: inline;">
                   {% csrf_token %}
-                  <button type="submit" class="logout-link" style="
-                      background-color: #dc3545; /* Rojo para logout */
-                      color: white;
-                      text-decoration: none;
-                      padding: 5px 10px;
-                      border-radius: 4px;
-                      border: none; /* Elimina el borde predeterminado del botón */
-                      cursor: pointer;
-                      font-size: 1em; /* Asegura que el tamaño de fuente coincida con los enlaces */
-                  ">Cerrar Sesión</button>
+                  <button type="submit" class="logout-link">Cerrar Sesión</button>
                 </form>
             {% else %}
-                <a href="{% url 'login' %}">Iniciar Sesión</a>
+                <a href="{% url 'login' %}" class="nav-link">Iniciar Sesión</a>
             {% endif %}
         </div>
     </nav>

@@ -1,13 +1,17 @@
-{% extends 'base.html' %} {# ¡Importante! Indica que esta plantilla hereda de base.html #}
+{% extends 'base.html' %}
 
-{% block title %}Inicio - CafeCentral{% endblock %} {# Sobrescribe el título de la página #}
+{% block title %}Inicio - CafeCentral{% endblock %}
 
-{% block content %} {# Define el contenido que irá dentro del bloque 'content' de base.html #}
-    <div class="welcome-container"> {# Cambiamos el nombre de la clase para evitar conflicto con .container de base.html #}
-        <h1>Bienvenido a {{ project_name }}</h1>
+{% block content %}
+    <div class="welcome-container">
+        <h1>Bienvenido a CafeCentral</h1> {# Podrías usar {{ project_name }} si la pasas desde el contexto #}
         <p>Tu sistema de gestión inteligente para el café.</p>
+        
+        {# Opcional: Puedes quitar estos enlaces si el menú superior los hace redundantes #}
         <div class="links">
+            {% if user.is_owner %}
             <a href="{% url 'admin:index' %}">Acceder al Panel de Administración</a>
+            {% endif %}
             <a href="{% url 'inventory:product_list' %}">Ver Inventario de Productos</a>
         </div>
     </div>
