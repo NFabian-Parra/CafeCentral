@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <a href="{% url 'inventory:user_create' %}" class="button">Crear Nuevo Usuario</a>
+
+    {% if users %}
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre de Usuario</th>
+                <th>Nombre Completo</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Activo</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user_obj in users %}
+            <tr>
+                <td><a href="{% url 'inventory:user_detail' pk=user_obj.pk %}">{{ user_obj.username }}</a></td>
+                <td>{{ user_obj.first_name }} {{ user_obj.last_name }}</td>
+                <td>{{ user_obj.email|default:"N/A" }}</td>
+                <td>{{ user_obj.role.get_name_display|default:"Sin Rol" }}</td>
+                <td>{% if user_obj.is_active %}Sí{% else %}No{% endif %}</td>
+                <td>
+                    <a href="{% url 'inventory:user_update' pk=user_obj.pk %}" class="button small-button">Editar</a>
+                    {% if user_obj.pk != user.pk %} {# Evita mostrar el botón de eliminar para el usuario logueado #}
+                        <a href="{% url 'inventory:user_delete' pk=user_obj.pk %}" class="button small-button button-delete">Eliminar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center;">No hay usuarios registrados (aparte de ti, si estás logueado).</p>
+    {% endif %}
+{% endblock %}

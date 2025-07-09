@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+
+    <p><strong>Nombre de Usuario:</strong> {{ user_obj.username }}</p>
+    <p><strong>Nombre:</strong> {{ user_obj.first_name|default:"N/A" }}</p>
+    <p><strong>Apellido:</strong> {{ user_obj.last_name|default:"N/A" }}</p>
+    <p><strong>Correo Electrónico:</strong> {{ user_obj.email|default:"N/A" }}</p>
+    <p><strong>Rol:</strong> {{ user_obj.role.get_name_display|default:"Sin Rol" }}</p>
+    <p><strong>Activo:</strong> {% if user_obj.is_active %}Sí{% else %}No{% endif %}</p>
+    <p><strong>Miembro del staff:</strong> {% if user_obj.is_staff %}Sí{% else %}No{% endif %}</p>
+    <p><strong>Superusuario:</strong> {% if user_obj.is_superuser %}Sí{% else %}No{% endif %}</p>
+    <p><strong>Fecha de Creación:</strong> {{ user_obj.date_joined|date:"d M Y H:i" }}</p>
+    <p><strong>Último Acceso:</strong> {{ user_obj.last_login|date:"d M Y H:i"|default:"Nunca" }}</p>
+
+    <div class="button-group">
+        <a href="{% url 'inventory:user_update' pk=user_obj.pk %}" class="button">Editar Usuario</a>
+        {% if user_obj.pk != user.pk %} {# Evita mostrar el botón de eliminar para el usuario logueado #}
+            <a href="{% url 'inventory:user_delete' pk=user_obj.pk %}" class="button button-delete">Eliminar Usuario</a>
+        {% endif %}
+        <a href="{% url 'inventory:user_list' %}" class="back-link">Volver a Usuarios</a>
+    </div>
+{% endblock %}

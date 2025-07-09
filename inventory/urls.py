@@ -42,4 +42,11 @@ urlpatterns = [
     path('roles/<int:pk>/', views.RoleDetailView.as_view(), name='role_detail'),
     path('roles/<int:pk>/edit/', views.RoleUpdateView.as_view(), name='role_update'),
     path('roles/<int:pk>/delete/', views.RoleDeleteView.as_view(), name='role_delete'),
+    
+    # --- RUTAS para la gestión de CustomUser ---
+    path('users/', views.UserListView.as_view(), name='user_list'),
+    path('users/add/', views.UserCreateView.as_view(), name='user_create'),
+    path('users/<int:pk>/', views.UserDetailView.as_view(), name='user_detail'),
+    path('users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='user_update'),
+    path('users/<int:pk>/delete/', views.UserDeleteView.as_view(), name='user_delete'),
 ]

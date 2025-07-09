@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm as BaseUserChangeForm
 from .models import CustomUser, Product, Role, Supplier, DailySalesSession, SaleItem, StockAlert
 from django.utils import timezone
 #import logging
@@ -8,9 +8,10 @@ from django.utils import timezone
 #logger = logging.getLogger(__name__)
 
 class CustomUserCreationForm(UserCreationForm):
+    # Formulario para crear usuarios.
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = UserCreationForm.Meta.fields + ('role',)
+        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email', 'role',)
     
     # # --- MÉTODO PARA DEPURACIÓN ---    
     # def clean(self):
@@ -26,13 +27,24 @@ class CustomUserCreationForm(UserCreationForm):
     #     return cleaned_data
     # # --- FIN DEL MÉTODO DEPURACIÓN ---
 
-class CustomUserChangeForm(UserChangeForm):
+class CustomUserChangeForm(BaseUserChangeForm):
+    # Formulario para editar usuarios.
     class Meta:
         model = CustomUser
-        fields = ('username', 'first_name', 'last_name', 
-                  'email', 'is_active', 'is_staff', 'is_superuser', 
-                  'role', 'groups', 'user_permissions', 'last_login', 'date_joined'
-                  )
+        fields = (
+            'username', 'first_name', 'last_name', 'email', 'role',
+            'is_active', # Es útil para activar/desactivar usuarios
+            # 'is_staff', 'is_superuser', 'groups', 'user_permissions', # Estos son típicamente solo para el superusuario/admin de Django
+            # 'last_login', 'date_joined' # Estos son automáticos/de solo lectura
+        )
+        labels = {
+            'username': 'Nombre de Usuario',
+            'first_name': 'Nombre',
+            'last_name': 'Apellido',
+            'email': 'Correo Electrónico',
+            'role': 'Rol del Usuario',
+            'is_active': 'Activo',
+        }
 
 # --- Formularios para la Interfaz de Usuario (Frontend) ---
 ### CBV significa Vistas Basadas en Clases (Class-Based Views)
@@ -94,8 +106,7 @@ class DailySalesSessionForm(forms.ModelForm):
     class Meta:
         model = DailySalesSession
         fields = [
-            'sale_date',
-            'notes',
+            'sale_date', 'notes',
             # 'registered_by_user' no se incluye aquí, se asigna en la vista automáticamente
         ]
         widgets = {
@@ -149,7 +160,7 @@ class StockAlertForm(forms.ModelForm):
             'resolved': 'Marcar como Resuelta',
         }
 
-# --- AÑADE ESTE NUEVO FORMULARIO PARA Role ---
+# --- FORMULARIO PARA Role ---
 class RoleForm(forms.ModelForm):
     class Meta:
         model = Role

@@ -1,4 +1,5 @@
 
+from pyexpat.errors import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy 
 from django.contrib.auth.decorators import login_required
@@ -10,7 +11,11 @@ from django.utils import timezone # Para asignar la hora de resolución
 
 from .models import Product, Supplier, CustomUser, DailySalesSession, SaleItem, StockAlert, Role
 from .decorators import role_required # Tu decorador personalizado
-from .forms import ProductForm, SupplierForm, DailySalesSessionForm, SaleItemForm, StockAlertForm, RoleForm
+# Importa los formularios de usuario adecuados
+from .forms import (
+    ProductForm, SupplierForm, DailySalesSessionForm, SaleItemForm,
+    StockAlertForm, RoleForm, CustomUserCreationForm, CustomUserChangeForm
+)
 
 # product_list_view (función) antes de Opción con CBV
 # @login_required
@@ -44,10 +49,92 @@ class RoleRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         # Redirige a la página de inicio o a una página de error de acceso denegado
         return redirect(reverse_lazy('home')) # O una URL de error más específica
 
+# --- VISTAS BASADAS EN CLASES (CBV) para la gestión de CustomUser ---
+
+class UserListView(RoleRequiredMixin, ListView):
+    model = CustomUser
+    template_name = 'inventory/user_list.html'
+    context_object_name = 'users'
+    allowed_roles = ['OWNER']
+    
+    def get_queryset(self):
+        # Excluir al propio usuario logueado de la lista si no quieres que se auto-elimine/edite su propio rol.
+        # Esto puede ser gestionado también por lógica en la plantilla.
+        return CustomUser.objects.exclude(pk=self.request.user.pk).order_by('username')
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Gestión de Usuarios'
+        return context
+
+class UserDetailView(RoleRequiredMixin, DetailView):
+    model = CustomUser
+    template_name = 'inventory/user_detail.html'
+    context_object_name = 'user_obj'
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = f"Detalles de Usuario: {self.object.username}"
+        return context
+
+class UserCreateView(RoleRequiredMixin, CreateView):
+    model = CustomUser
+    form_class = CustomUserCreationForm # Usa el formulario de creación de usuario
+    template_name = 'inventory/user_form.html'
+    success_url = reverse_lazy('inventory:user_list')
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Crear Nuevo Usuario'
+        return context
+
+class UserUpdateView(RoleRequiredMixin, UpdateView):
+    model = CustomUser
+    form_class = CustomUserChangeForm # Usa el formulario de cambio de usuario
+    template_name = 'inventory/user_form.html'
+    context_object_name = 'user_obj'
+    success_url = reverse_lazy('inventory:user_list')
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Editar Usuario'
+        return context
+
+    def form_valid(self, form):
+        if self.request.user.is_owner() and self.object.pk == self.request.user.pk:
+            # Si el OWNER intenta editar su propio rol, se podría añadir una validación extra.
+            # Por ahora, se permite.
+            pass 
+        return super().form_valid(form)
+
+
+class UserDeleteView(RoleRequiredMixin, DeleteView):
+    model = CustomUser
+    template_name = 'inventory/user_confirm_delete.html'
+    context_object_name = 'user_obj' 
+    success_url = reverse_lazy('inventory:user_list')
+    allowed_roles = ['OWNER']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Eliminar Usuario'
+        return context
+
+    # prevenir que un OWNER se auto-elimine
+    def post(self, request, *args, **kwargs):
+        if self.get_object().pk == request.user.pk:
+            messages.error(request, "No puedes eliminar tu propia cuenta.")
+            return redirect('inventory:user_list') # Redirigir de vuelta a la lista de usuarios
+        return super().post(request, *args, **kwargs)
+    
 
 class ProductListView(RoleRequiredMixin, ListView):
     model = Product
-    template_name = 'inventory/product_list.html' # Reutilizamos la plantilla existente
+    template_name = 'inventory/product_list.html' # Reutiliza la plantilla existente
     context_object_name = 'products'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
