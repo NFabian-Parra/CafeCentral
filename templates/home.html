@@ -4,61 +4,194 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-    <div class="welcome-container">
-        <h1>Bienvenido a CafeCentral</h1>
-        <p>Tu sistema de gestión inteligente para el café.</p>
+    <!-- Welcome Header -->
+    <div class="text-center mb-12">
+        <div class="bg-gradient-to-r from-coffee-100 to-cream-100 rounded-2xl p-8 shadow-warm">
+            <div class="flex items-center justify-center mb-4">
+                <i class="fas fa-coffee text-coffee-700 text-4xl mr-3"></i>
+                <h1 class="font-display text-4xl font-bold text-coffee-900">Bienvenido a CafeCentral</h1>
+            </div>
+            <p class="text-coffee-700 text-lg font-medium">Tu sistema de gestión inteligente para el café</p>
+        </div>
     </div>
 
     {% if user.is_authenticated %}
-        <div class="dashboard-grid">
-            {# Tarjeta de Información General #}
-            <div class="dashboard-card general-info">
-                <h2>Información General</h2>
-                <p><strong>Productos Registrados:</strong> {{ total_products }}</p>
-                <p><strong>Alertas de Stock Activas:</strong> {{ active_stock_alerts_count }}</p>
-                <p><strong>Productos con Stock Bajo:</strong> {{ products_low_stock_count }}</p>
-                <a href="{% url 'inventory:stockalert_list' %}" class="button dashboard-button">Ver Alertas</a>
-                <a href="{% url 'inventory:product_list' %}" class="button dashboard-button">Gestionar Productos</a>
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Información General Card -->
+            <div class="bg-white rounded-xl shadow-warm border border-coffee-200 p-6 hover:shadow-coffee transition-shadow duration-300">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-display text-xl font-semibold text-coffee-900">Información General</h2>
+                    <i class="fas fa-chart-bar text-coffee-600 text-2xl"></i>
+                </div>
+                
+                <div class="space-y-3 mb-6">
+                    <div class="flex justify-between items-center">
+                        <span class="text-coffee-700">Productos Registrados:</span>
+                        <span class="font-semibold text-coffee-900 bg-coffee-100 px-3 py-1 rounded-full">{{ total_products }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-coffee-700">Alertas Activas:</span>
+                        <span class="font-semibold text-red-600 bg-red-100 px-3 py-1 rounded-full">{{ active_stock_alerts_count }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-coffee-700">Stock Bajo:</span>
+                        <span class="font-semibold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">{{ products_low_stock_count }}</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-2">
+                    <a href="{% url 'inventory:stockalert_list' %}" class="w-full bg-coffee-600 hover:bg-coffee-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <span>Ver Alertas</span>
+                    </a>
+                    <a href="{% url 'inventory:product_list' %}" class="w-full bg-cream-600 hover:bg-cream-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                        <i class="fas fa-box"></i>
+                        <span>Gestionar Productos</span>
+                    </a>
+                </div>
             </div>
 
-            {# Tarjetas específicas para OWNER o ADMIN #}
             {% if user.is_owner or user.is_admin %}
-                <div class="dashboard-card sales-summary">
-                    <h2>Ventas de Hoy</h2>
+                <!-- Ventas de Hoy Card -->
+                <div class="bg-white rounded-xl shadow-warm border border-coffee-200 p-6 hover:shadow-coffee transition-shadow duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-display text-xl font-semibold text-coffee-900">Ventas de Hoy</h2>
+                        <i class="fas fa-cash-register text-green-600 text-2xl"></i>
+                    </div>
+                    
                     {% if today_sales_session_exists %}
-                        <p><strong>Ingresos Totales:</strong> ${{ total_revenue_today|floatformat:2 }}</p>
-                        <p><strong>Ítems Vendidos:</strong> {{ total_items_sold_today|floatformat:0 }}</p>
-                        <a href="{% url 'inventory:dailysalessession_detail' pk=today_sales_session_pk %}" class="button dashboard-button">Ver Sesión de Ventas</a>
+                        <div class="space-y-3 mb-6">
+                            <div class="bg-green-50 rounded-lg p-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold text-green-700">${{ total_revenue_today|floatformat:2 }}</div>
+                                    <div class="text-sm text-green-600">Ingresos Totales</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-coffee-700">Ítems Vendidos:</span>
+                                <span class="font-semibold text-coffee-900 bg-coffee-100 px-3 py-1 rounded-full">{{ total_items_sold_today|floatformat:0 }}</span>
+                            </div>
+                        </div>
+                        
+                        <a href="{% url 'inventory:dailysalessession_detail' pk=today_sales_session_pk %}" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <i class="fas fa-eye"></i>
+                            <span>Ver Sesión de Ventas</span>
+                        </a>
                     {% else %}
-                        <p>Aún no hay una sesión de ventas registrada para hoy.</p>
-                        <a href="{% url 'inventory:dailysalessession_create' %}" class="button dashboard-button">Crear Sesión de Ventas</a>
+                        <div class="text-center py-6">
+                            <i class="fas fa-plus-circle text-coffee-400 text-3xl mb-3"></i>
+                            <p class="text-coffee-600 mb-4">Aún no hay una sesión de ventas registrada para hoy.</p>
+                            <a href="{% url 'inventory:dailysalessession_create' %}" class="bg-coffee-600 hover:bg-coffee-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                                <i class="fas fa-plus"></i>
+                                <span>Crear Sesión de Ventas</span>
+                            </a>
+                        </div>
                     {% endif %}
                 </div>
 
-                <div class="dashboard-card user-summary">
-                    <h2>Resumen de Usuarios</h2>
-                    <p><strong>Propietarios:</strong> {{ owner_count }}</p>
-                    <p><strong>Administradores:</strong> {{ admin_count }}</p>
-                    <p><strong>Empleados:</strong> {{ employee_count }}</p>
-                    <a href="{% url 'inventory:user_list' %}" class="button dashboard-button">Gestionar Usuarios</a>
-                    <a href="{% url 'inventory:role_list' %}" class="button dashboard-button">Gestionar Roles</a>
+                <!-- Resumen de Usuarios Card -->
+                <div class="bg-white rounded-xl shadow-warm border border-coffee-200 p-6 hover:shadow-coffee transition-shadow duration-300">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-display text-xl font-semibold text-coffee-900">Resumen de Usuarios</h2>
+                        <i class="fas fa-users text-coffee-600 text-2xl"></i>
+                    </div>
+                    
+                    <div class="space-y-3 mb-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-coffee-700 flex items-center space-x-2">
+                                <i class="fas fa-crown text-yellow-500"></i>
+                                <span>Propietarios:</span>
+                            </span>
+                            <span class="font-semibold text-coffee-900 bg-yellow-100 px-3 py-1 rounded-full">{{ owner_count }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-coffee-700 flex items-center space-x-2">
+                                <i class="fas fa-user-shield text-blue-500"></i>
+                                <span>Administradores:</span>
+                            </span>
+                            <span class="font-semibold text-coffee-900 bg-blue-100 px-3 py-1 rounded-full">{{ admin_count }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-coffee-700 flex items-center space-x-2">
+                                <i class="fas fa-user text-green-500"></i>
+                                <span>Empleados:</span>
+                            </span>
+                            <span class="font-semibold text-coffee-900 bg-green-100 px-3 py-1 rounded-full">{{ employee_count }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <a href="{% url 'inventory:user_list' %}" class="w-full bg-coffee-600 hover:bg-coffee-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <i class="fas fa-users"></i>
+                            <span>Gestionar Usuarios</span>
+                        </a>
+                        <a href="{% url 'inventory:role_list' %}" class="w-full bg-cream-600 hover:bg-cream-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <i class="fas fa-users-cog"></i>
+                            <span>Gestionar Roles</span>
+                        </a>
+                    </div>
                 </div>
             {% endif %}
 
-            {# Mensaje/Enlaces para Empleados (o cualquier otro rol) #}
             {% if user.is_employee and not user.is_owner and not user.is_admin %}
-                <div class="dashboard-card employee-actions">
-                    <h2>Acciones Rápidas</h2>
-                    <p>Como empleado, tu rol principal es gestionar las ventas.</p>
-                    <a href="{% url 'inventory:dailysalessession_create' %}" class="button dashboard-button">Iniciar Nueva Sesión de Ventas</a>
+                <!-- Acciones para Empleados Card -->
+                <div class="bg-white rounded-xl shadow-warm border border-coffee-200 p-6 hover:shadow-coffee transition-shadow duration-300 md:col-span-2 lg:col-span-1">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="font-display text-xl font-semibold text-coffee-900">Acciones Rápidas</h2>
+                        <i class="fas fa-bolt text-coffee-600 text-2xl"></i>
+                    </div>
+                    
+                    <div class="text-center py-6">
+                        <i class="fas fa-user-tie text-coffee-400 text-3xl mb-3"></i>
+                        <p class="text-coffee-600 mb-4">Como empleado, tu rol principal es gestionar las ventas.</p>
+                        <a href="{% url 'inventory:dailysalessession_create' %}" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                            <i class="fas fa-plus"></i>
+                            <span>Iniciar Nueva Sesión de Ventas</span>
+                        </a>
+                    </div>
                 </div>
             {% endif %}
+        </div>
 
-        </div> {# Fin de dashboard-grid #}
+        <!-- Quick Actions Bar -->
+        <div class="bg-gradient-to-r from-coffee-50 to-cream-50 rounded-xl p-6 border border-coffee-200">
+            <h3 class="font-display text-lg font-semibold text-coffee-900 mb-4 flex items-center space-x-2">
+                <i class="fas fa-rocket"></i>
+                <span>Acciones Rápidas</span>
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <a href="{% url 'inventory:product_list' %}" class="bg-white hover:bg-coffee-50 border border-coffee-200 rounded-lg p-4 text-center transition-colors duration-200 group">
+                    <i class="fas fa-box text-coffee-600 text-2xl mb-2 group-hover:text-coffee-700"></i>
+                    <div class="text-sm font-medium text-coffee-700">Productos</div>
+                </a>
+                <a href="{% url 'inventory:supplier_list' %}" class="bg-white hover:bg-coffee-50 border border-coffee-200 rounded-lg p-4 text-center transition-colors duration-200 group">
+                    <i class="fas fa-truck text-coffee-600 text-2xl mb-2 group-hover:text-coffee-700"></i>
+                    <div class="text-sm font-medium text-coffee-700">Proveedores</div>
+                </a>
+                <a href="{% url 'inventory:dailysalessession_list' %}" class="bg-white hover:bg-coffee-50 border border-coffee-200 rounded-lg p-4 text-center transition-colors duration-200 group">
+                    <i class="fas fa-chart-line text-coffee-600 text-2xl mb-2 group-hover:text-coffee-700"></i>
+                    <div class="text-sm font-medium text-coffee-700">Ventas</div>
+                </a>
+                <a href="{% url 'inventory:stockmovement_list' %}" class="bg-white hover:bg-coffee-50 border border-coffee-200 rounded-lg p-4 text-center transition-colors duration-200 group">
+                    <i class="fas fa-exchange-alt text-coffee-600 text-2xl mb-2 group-hover:text-coffee-700"></i>
+                    <div class="text-sm font-medium text-coffee-700">Movimientos</div>
+                </a>
+            </div>
+        </div>
 
     {% else %}
-        <div class="not-logged-in-message">
-            <p>Por favor, <a href="{% url 'login' %}">inicia sesión</a> para acceder al sistema de gestión.</p>
+        <!-- Not Logged In Message -->
+        <div class="text-center py-16">
+            <div class="bg-white rounded-2xl shadow-warm p-8 max-w-md mx-auto border border-coffee-200">
+                <i class="fas fa-lock text-coffee-400 text-4xl mb-4"></i>
+                <h2 class="font-display text-2xl font-semibold text-coffee-900 mb-4">Acceso Requerido</h2>
+                <p class="text-coffee-600 mb-6">Por favor, inicia sesión para acceder al sistema de gestión.</p>
+                <a href="{% url 'login' %}" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Iniciar Sesión</span>
+                </a>
+            </div>
         </div>
     {% endif %}
 
