@@ -1,5 +1,6 @@
 # .gitignore
 .env
+.vscode
 # Python
 __pycache__/
 *.pyc
@@ -18,7 +19,6 @@ pip-delete-this-directory.txt
 htmlcov/
 .ipynb_checkpoints/
 .mypy_cache/
-.vscode/ # Ignorar configuraciones de VS Code específicas del usuario
 
 # Django
 *.log
