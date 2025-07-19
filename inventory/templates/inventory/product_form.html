@@ -3,12 +3,181 @@
 {% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }} {# Renderiza el formulario como párrafos #}
-        <button type="submit" class="button">Guardar</button>
-        <a href="{% url 'inventory:product_list' %}" class="back-link">Cancelar</a>
-    </form>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <i class="fas fa-edit text-coffee-600 text-2xl"></i>
+            <h1 class="font-display text-3xl font-bold text-coffee-900">{{ page_title }}</h1>
+        </div>
+        <a href="{% url 'inventory:product_list' %}" class="bg-gray-200 hover:bg-gray-300 text-coffee-800 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+            <i class="fas fa-arrow-left"></i>
+            <span>Volver a Productos</span>
+        </a>
+    </div>
 
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-warm border border-coffee-200 p-6 mb-8">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Form Errors -->
+            {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                        <p class="font-medium">Por favor corrige los siguientes errores:</p>
+                    </div>
+                    <ul class="list-disc pl-5 space-y-1 text-sm">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <!-- Two Column Layout for Desktop -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-6">
+                    <!-- Name Field -->
+                    <div>
+                        <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.name.label }}{% if form.name.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.name }}
+                        </div>
+                        {% if form.name.help_text %}
+                            <p class="mt-1 text-sm text-coffee-500">{{ form.name.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Description Field -->
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.description.label }}{% if form.description.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.description }}
+                        </div>
+                        {% if form.description.help_text %}
+                            <p class="mt-1 text-sm text-coffee-500">{{ form.description.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Unit of Measurement Field -->
+                    <div>
+                        <label for="{{ form.unit_of_measurement.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.unit_of_measurement.label }}{% if form.unit_of_measurement.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.unit_of_measurement }}
+                        </div>
+                        {% if form.unit_of_measurement.help_text %}
+                            <p class="mt-1 text-sm text-coffee-500">{{ form.unit_of_measurement.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Current Stock Field -->
+                    <div>
+                        <label for="{{ form.current_stock.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.current_stock.label }}{% if form.current_stock.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.current_stock }}
+                        </div>
+                        {% if form.current_stock.help_text %}
+                            <p class="mt-1 text-sm text-coffee-500">{{ form.current_stock.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Minimum Stock Level Field -->
+                    <div>
+                        <label for="{{ form.minimum_stock_level.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.minimum_stock_level.label }}{% if form.minimum_stock_level.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.minimum_stock_level }}
+                        </div>
+                        {% if form.minimum_stock_level.help_text %}
+                            <p class="mt-1 text-sm text-coffee-500">{{ form.minimum_stock_level.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Price Field -->
+                    <div>
+                        <label for="{{ form.price_per_unit_from_supplier.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.price_per_unit_from_supplier.label }}{% if form.price_per_unit_from_supplier.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="relative rounded-md shadow-sm">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="text-coffee-500 sm:text-sm">$</span>
+                            </div>
+                            <div class="pl-7">
+                                {{ form.price_per_unit_from_supplier }}
+                            </div>
+                        </div>
+                        {% if form.price_per_unit_from_supplier.help_text %}
+                            <p class="mt-1 text-sm text-coffee-500">{{ form.price_per_unit_from_supplier.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Supplier Field (Full Width) -->
+            <div>
+                <label for="{{ form.supplier.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                    {{ form.supplier.label }}{% if form.supplier.field.required %} <span class="text-red-500">*</span>{% endif %}
+                </label>
+                <div class="mt-1">
+                    {{ form.supplier }}
+                </div>
+                {% if form.supplier.help_text %}
+                    <p class="mt-1 text-sm text-coffee-500">{{ form.supplier.help_text }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row sm:justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-coffee-100">
+                <a href="{% url 'inventory:product_list' %}" class="bg-white border border-coffee-300 text-coffee-700 hover:bg-coffee-50 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-times"></i>
+                    <span>Cancelar</span>
+                </a>
+                <button type="submit" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-warm">
+                    <i class="fas fa-save"></i>
+                    <span>Guardar Producto</span>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Help Card -->
+    <div class="bg-cream-50 rounded-xl shadow-sm border border-cream-200 p-6">
+        <div class="flex items-center space-x-3 mb-4">
+            <i class="fas fa-lightbulb text-cream-600 text-xl"></i>
+            <h3 class="font-display text-lg font-semibold text-coffee-900">Consejos para Productos</h3>
+        </div>
+        <ul class="space-y-2 text-coffee-700">
+            <li class="flex items-start space-x-2">
+                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                <span>Establece un <strong>nivel mínimo de stock</strong> adecuado para recibir alertas cuando sea necesario reabastecer.</span>
+            </li>
+            <li class="flex items-start space-x-2">
+                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                <span>Asigna un <strong>proveedor</strong> para facilitar el proceso de reabastecimiento.</span>
+            </li>
+            <li class="flex items-start space-x-2">
+                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                <span>Usa <strong>descripciones claras</strong> para identificar fácilmente los productos.</span>
+            </li>
+        </ul>
+    </div>
 {% endblock %}

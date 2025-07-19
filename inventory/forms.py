@@ -61,10 +61,35 @@ class ProductForm(forms.ModelForm):
             'supplier', 
             # 'last_updated' no se incluye porque Django lo gestiona automáticamente (auto_now)
         ]
-        # Opcionalmente, se puede añadir widgets personalizados o etiquetas
+        # Widgets con clases de Tailwind CSS
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
-            'price_per_unit_from_supplier': forms.NumberInput(attrs={'step': '0.01'}),
+            'name': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Ej: Café Molido Premium'
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Descripción detallada del producto'
+            }),
+            'unit_of_measurement': forms.Select(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50'
+            }),
+            'current_stock': forms.NumberInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'step': '0.01'
+            }),
+            'minimum_stock_level': forms.NumberInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'step': '0.01'
+            }),
+            'price_per_unit_from_supplier': forms.NumberInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'step': '0.01'
+            }),
+            'supplier': forms.Select(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50'
+            }),
         }
         labels = {
             'name': 'Nombre del Producto',
@@ -89,8 +114,31 @@ class SupplierForm(forms.ModelForm):
             'delivery_days',
         ]
         widgets = {
-            'address': forms.Textarea(attrs={'rows': 3}),
-            'delivery_days': forms.TextInput(attrs={'placeholder': 'Ej: Lunes, Miércoles'}),
+            'name': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Ej: Distribuidora de Café El Cafetal'
+            }),
+            'contact_person': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Ej: Juan Pérez'
+            }),
+            'phone': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Ej: +34 612 345 678'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Ej: contacto@elcafetal.com'
+            }),
+            'address': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Dirección completa del proveedor'
+            }),
+            'delivery_days': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Ej: Lunes, Miércoles'
+            }),
         }
         labels = {
             'name': 'Nombre del Proveedor',
@@ -110,8 +158,15 @@ class DailySalesSessionForm(forms.ModelForm):
             # 'registered_by_user' no se incluye aquí, se asigna en la vista automáticamente
         ]
         widgets = {
-            'sale_date': forms.DateInput(attrs={'type': 'date'}), # HTML5 date picker
-            'notes': forms.Textarea(attrs={'rows': 4}),
+            'sale_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50'
+            }),
+            'notes': forms.Textarea(attrs={
+                'rows': 4,
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Notas adicionales sobre esta sesión de ventas'
+            }),
         }
         labels = {
             'sale_date': 'Fecha de la Sesión',
@@ -156,6 +211,11 @@ class StockAlertForm(forms.ModelForm):
     class Meta:
         model = StockAlert
         fields = ['resolved'] # Solo el campo 'resolved' será editable directamente
+        widgets = {
+            'resolved': forms.CheckboxInput(attrs={
+                'class': 'h-5 w-5 rounded border-coffee-300 text-coffee-600 focus:ring-coffee-500'
+            }),
+        }
         labels = {
             'resolved': 'Marcar como Resuelta',
         }
@@ -170,7 +230,14 @@ class RoleForm(forms.ModelForm):
             'description': 'Descripción del Rol',
         }
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
+            'name': forms.Select(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50'
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Descripción detallada de las responsabilidades y permisos de este rol'
+            }),
         }
     
     # Opcional: Validación para el campo 'name' para asegurar que sea una de las opciones válidas
@@ -194,8 +261,22 @@ class StockMovementForm(forms.ModelForm):
             # 'registered_by' se asignará automáticamente al request.user en la vista
         ]
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
-            'quantity': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}), # Asegura que la cantidad sea positiva
+            'product': forms.Select(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50'
+            }),
+            'movement_type': forms.Select(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50'
+            }),
+            'quantity': forms.NumberInput(attrs={
+                'step': '0.01', 
+                'min': '0',
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50'
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Explica el motivo de este movimiento de stock'
+            }),
         }
         labels = {
             'product': 'Producto',

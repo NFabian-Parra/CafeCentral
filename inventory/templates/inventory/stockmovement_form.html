@@ -1,16 +1,131 @@
 {% extends 'base.html' %}
-{% block title %}{{ page_title }}{% endblock %}
+
+{% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-    <form method="post" class="standard-form">
-        {% csrf_token %}
-        {{ form.as_p }} {# Renderiza todos los campos del formulario como párrafos #}
-        <button type="submit" class="button button-primary">Guardar Movimiento</button>
-        <a href="{% url 'inventory:stockmovement_list' %}" class="button button-secondary">Cancelar</a>
-    </form>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <i class="fas fa-exchange-alt text-coffee-600 text-2xl"></i>
+            <h1 class="font-display text-3xl font-bold text-coffee-900">{{ page_title }}</h1>
+        </div>
+        <a href="{% url 'inventory:stockmovement_list' %}" class="bg-gray-200 hover:bg-gray-300 text-coffee-800 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+            <i class="fas fa-arrow-left"></i>
+            <span>Volver a Movimientos</span>
+        </a>
+    </div>
 
-    <div class="back-link-container">
-        <a href="{% url 'inventory:stockmovement_list' %}" class="back-link">Volver al Historial de Movimientos</a>
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-warm border border-coffee-200 p-6 mb-8">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Form Errors -->
+            {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                        <p class="font-medium">Por favor corrige los siguientes errores:</p>
+                    </div>
+                    <ul class="list-disc pl-5 space-y-1 text-sm">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <!-- Two Column Layout for Desktop -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-6">
+                    <!-- Product Field -->
+                    <div>
+                        <label for="{{ form.product.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.product.label }}{% if form.product.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.product }}
+                        </div>
+                        <p class="mt-1 text-sm text-coffee-500">Selecciona el producto que deseas ajustar.</p>
+                    </div>
+                    
+                    <!-- Movement Type Field -->
+                    <div>
+                        <label for="{{ form.movement_type.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.movement_type.label }}{% if form.movement_type.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.movement_type }}
+                        </div>
+                        <p class="mt-1 text-sm text-coffee-500">Indica si es una entrada (IN) o salida (OUT) de stock.</p>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Quantity Field -->
+                    <div>
+                        <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.quantity.label }}{% if form.quantity.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.quantity }}
+                        </div>
+                        <p class="mt-1 text-sm text-coffee-500">Cantidad a añadir o retirar del inventario.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Description Field (Full Width) -->
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                    {{ form.description.label }}{% if form.description.field.required %} <span class="text-red-500">*</span>{% endif %}
+                </label>
+                <div class="mt-1">
+                    {{ form.description }}
+                </div>
+                <p class="mt-1 text-sm text-coffee-500">Explica el motivo de este movimiento de stock.</p>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row sm:justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-coffee-100">
+                <a href="{% url 'inventory:stockmovement_list' %}" class="bg-white border border-coffee-300 text-coffee-700 hover:bg-coffee-50 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-times"></i>
+                    <span>Cancelar</span>
+                </a>
+                <button type="submit" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-warm">
+                    <i class="fas fa-save"></i>
+                    <span>Guardar Movimiento</span>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Help Card -->
+    <div class="bg-cream-50 rounded-xl shadow-sm border border-cream-200 p-6">
+        <div class="flex items-center space-x-3 mb-4">
+            <i class="fas fa-lightbulb text-cream-600 text-xl"></i>
+            <h3 class="font-display text-lg font-semibold text-coffee-900">Consejos para Movimientos de Stock</h3>
+        </div>
+        <ul class="space-y-2 text-coffee-700">
+            <li class="flex items-start space-x-2">
+                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                <span>Usa <strong>IN</strong> para registrar nuevas compras o devoluciones al inventario.</span>
+            </li>
+            <li class="flex items-start space-x-2">
+                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                <span>Usa <strong>OUT</strong> para registrar pérdidas, daños o ajustes negativos.</span>
+            </li>
+            <li class="flex items-start space-x-2">
+                <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                <span>Incluye una <strong>descripción clara</strong> para facilitar el seguimiento y auditorías futuras.</span>
+            </li>
+        </ul>
     </div>
 {% endblock %}
