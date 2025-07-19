@@ -285,3 +285,75 @@ form textarea {
 .sales-summary { background-color: #e0f2f7; border-color: #a7d9f0; } /* Azul claro */
 .user-summary { background-color: #f7ede0; border-color: #f0c3a7; } /* Naranja claro */
 .employee-actions { background-color: #f4e0f7; border-color: #d9a7f0; } /* Morado claro */
+
+/* Estilos para la tabla de datos  */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    background-color: white;
+}
+
+.data-table th, .data-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+    text-transform: uppercase;
+    font-size: 0.9em;
+}
+
+.data-table tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilos para el texto de tipo de movimiento */
+.movement-type-in {
+    color: #28a745; /* Verde para entradas */
+    font-weight: bold;
+}
+
+.movement-type-out {
+    color: #dc3545; /* Rojo para salidas */
+    font-weight: bold;
+}
+
+/* Estilos para la cabecera con botón */
+.header-with-button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.header-with-button h1 {
+    margin: 0;
+}
+
+.button-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.button-primary:hover {
+    background-color: #0056b3;
+}
+
+.button-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.button-secondary:hover {
+    background-color: #5a6268;
+}

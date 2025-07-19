@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <div class="header-with-button">
+        <h1>{{ page_title }}</h1>
+        {% if user.is_owner or user.is_admin %}
+            <a href="{% url 'inventory:stockmovement_create' %}" class="button button-primary">Registrar Movimiento</a>
+        {% endif %}
+    </div>
+
+    {% if movements %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th>Cantidad</th>
+                    <th>Fecha y Hora</th>
+                    <th>Descripción</th>
+                    <th>Registrado por</th>
+                    {# Si implementas Detail/Update/Delete, aquí irían las acciones #}
+                    <th>Acciones</th> 
+                </tr>
+            </thead>
+            <tbody>
+                {% for movement in movements %}
+                    <tr>
+                        <td>{{ movement.product.name }}</td>
+                        <td>
+                            <span class="movement-type-{{ movement.movement_type|lower }}">
+                                {{ movement.get_movement_type_display }}
+                            </span>
+                        </td>
+                        <td>{{ movement.quantity|floatformat:2 }} {{ movement.product.get_unit_of_measurement_display }}</td>
+                        <td>{{ movement.movement_date|date:"Y-m-d H:i" }}</td>
+                        <td>{{ movement.description|default:"N/A" }}</td>
+                        <td>{{ movement.registered_by.username|default:"Sistema" }}</td>
+                        <td>
+                            {# Opcional: Enlaces para editar/eliminar si implementas esas vistas #}
+                            {# <a href="{% url 'inventory:stockmovement_detail' movement.pk %}" class="button button-info">Ver</a> #}
+                            {# {% if user.is_owner or user.is_admin %} #}
+                            {# <a href="{% url 'inventory:stockmovement_update' movement.pk %}" class="button button-secondary">Editar</a> #}
+                            {# <a href="{% url 'inventory:stockmovement_delete' movement.pk %}" class="button button-danger">Eliminar</a> #}
+                            {# {% endif %} #}
+                            -
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay movimientos de stock registrados todavía.</p>
+        {% if user.is_owner or user.is_admin %}
+            <p>Puedes <a href="{% url 'inventory:stockmovement_create' %}">registrar el primer movimiento de stock</a>.</p>
+        {% endif %}
+    {% endif %}
+
+    <div class="back-link-container">
+        <a href="{% url 'home' %}" class="back-link">Volver al Dashboard</a>
+    </div>
+{% endblock %}

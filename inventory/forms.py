@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm as BaseUserChangeForm
-from .models import CustomUser, Product, Role, Supplier, DailySalesSession, SaleItem, StockAlert
+from .models import CustomUser, Product, Role, StockMovement, Supplier, DailySalesSession, SaleItem, StockAlert
 from django.utils import timezone
 #import logging
 
@@ -180,4 +180,42 @@ class RoleForm(forms.ModelForm):
         if name not in valid_names:
             raise forms.ValidationError(f"El nombre del rol '{name}' no es una opción válida.")
         return name
-#  añadir formularios para otros modelos aquí 
+
+# --- FORMULARIO PARA StockMovement ---
+class StockMovementForm(forms.ModelForm):
+    class Meta:
+        model = StockMovement
+        fields = [
+            'product',
+            'movement_type',
+            'quantity',
+            'description',
+            # 'movement_date' se asignará automáticamente a timezone.now en la vista
+            # 'registered_by' se asignará automáticamente al request.user en la vista
+        ]
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'quantity': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}), # Asegura que la cantidad sea positiva
+        }
+        labels = {
+            'product': 'Producto',
+            'movement_type': 'Tipo de Movimiento',
+            'quantity': 'Cantidad',
+            'description': 'Descripción / Motivo',
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        movement_type = cleaned_data.get('movement_type')
+        quantity = cleaned_data.get('quantity')
+        product = cleaned_data.get('product')
+
+        if quantity is not None and quantity <= 0:
+            self.add_error('quantity', "La cantidad debe ser un valor positivo.")
+        
+        if movement_type == 'OUT' and product and quantity is not None:
+            # Validar que no se retire más stock del disponible
+            if product.current_stock < quantity:
+                self.add_error('quantity', f"No hay suficiente stock de '{product.name}'. Stock actual: {product.current_stock} {product.get_unit_of_measurement_display()}.")
+
+        return cleaned_data

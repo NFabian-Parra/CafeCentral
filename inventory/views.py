@@ -9,11 +9,11 @@ from django.views import View # Importa la clase base View para vistas personali
 from django.forms import inlineformset_factory # Para gestionar formularios relacionados
 from django.utils import timezone # Para asignar la hora de resolución
 
-from .models import Product, Supplier, CustomUser, DailySalesSession, SaleItem, StockAlert, Role
+from .models import Product, StockMovement, Supplier, CustomUser, DailySalesSession, SaleItem, StockAlert, Role
 from .decorators import role_required # Tu decorador personalizado
 # Importa los formularios de usuario adecuados
 from .forms import (
-    ProductForm, SupplierForm, DailySalesSessionForm, SaleItemForm,
+    ProductForm, StockMovementForm, SupplierForm, DailySalesSessionForm, SaleItemForm,
     StockAlertForm, RoleForm, CustomUserCreationForm, CustomUserChangeForm
 )
 
@@ -465,3 +465,58 @@ class RoleDeleteView(RoleRequiredMixin, DeleteView):
         context['page_title'] = 'Eliminar Rol'
         return context
     
+# ... (Tu código existente hasta aquí) ...
+
+# --- VISTAS BASADAS EN CLASES (CBV) para la gestión de StockMovement ---
+
+class StockMovementListView(RoleRequiredMixin, ListView):
+    model = StockMovement
+    template_name = 'inventory/stockmovement_list.html'
+    context_object_name = 'movements'
+    ordering = ['-movement_date'] # Muestra los más recientes primero
+    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE'] # Empleados pueden ver el historial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Historial de Movimientos de Stock'
+        return context
+
+
+class StockMovementCreateView(RoleRequiredMixin, CreateView):
+    model = StockMovement
+    form_class = StockMovementForm
+    template_name = 'inventory/stockmovement_form.html'
+    success_url = reverse_lazy('inventory:stockmovement_list')
+    allowed_roles = ['OWNER', 'ADMIN'] # Solo OWNER y ADMIN pueden registrar movimientos de stock
+
+    def form_valid(self, form):
+        # Asignar automáticamente el usuario logueado
+        form.instance.registered_by = self.request.user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Registrar Nuevo Movimiento de Stock'
+        return context
+
+# Opcional: Si decido implementar Detail, Update, Delete para StockMovement:
+# class StockMovementDetailView(RoleRequiredMixin, DetailView):
+#     model = StockMovement
+#     template_name = 'inventory/stockmovement_detail.html'
+#     context_object_name = 'movement'
+#     allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
+
+# class StockMovementUpdateView(RoleRequiredMixin, UpdateView):
+#     model = StockMovement
+#     form_class = StockMovementForm
+#     template_name = 'inventory/stockmovement_form.html'
+#     success_url = reverse_lazy('inventory:stockmovement_list')
+#     allowed_roles = ['OWNER', 'ADMIN']
+
+# class StockMovementDeleteView(RoleRequiredMixin, DeleteView):
+#     model = StockMovement
+#     template_name = 'inventory/stockmovement_confirm_delete.html'
+#     success_url = reverse_lazy('inventory:stockmovement_list')
+#     allowed_roles = ['OWNER', 'ADMIN']
+#     # Consideración: La eliminación de movimientos de stock puede tener implicaciones en la auditoría.
+#     # Puede que quiera restringirla fuertemente o solo permitirla en circunstancias muy específicas.

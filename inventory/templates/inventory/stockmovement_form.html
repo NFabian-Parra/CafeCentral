@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block content %}
+    <h1>{{ page_title }}</h1>
+    <form method="post" class="standard-form">
+        {% csrf_token %}
+        {{ form.as_p }} {# Renderiza todos los campos del formulario como párrafos #}
+        <button type="submit" class="button button-primary">Guardar Movimiento</button>
+        <a href="{% url 'inventory:stockmovement_list' %}" class="button button-secondary">Cancelar</a>
+    </form>
+
+    <div class="back-link-container">
+        <a href="{% url 'inventory:stockmovement_list' %}" class="back-link">Volver al Historial de Movimientos</a>
+    </div>
+{% endblock %}

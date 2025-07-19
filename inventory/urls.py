@@ -49,4 +49,12 @@ urlpatterns = [
     path('users/<int:pk>/', views.UserDetailView.as_view(), name='user_detail'),
     path('users/<int:pk>/edit/', views.UserUpdateView.as_view(), name='user_update'),
     path('users/<int:pk>/delete/', views.UserDeleteView.as_view(), name='user_delete'),
+    
+    # --- URLs para StockMovement ---
+    path('stock-movements/', views.StockMovementListView.as_view(), name='stockmovement_list'),
+    path('stock-movements/create/', views.StockMovementCreateView.as_view(), name='stockmovement_create'),
+    # Opcional:
+    # path('stock-movements/<int:pk>/', views.StockMovementDetailView.as_view(), name='stockmovement_detail'),
+    # path('stock-movements/<int:pk>/edit/', views.StockMovementUpdateView.as_view(), name='stockmovement_update'),
+    # path('stock-movements/<int:pk>/delete/', views.StockMovementDeleteView.as_view(), name='stockmovement_delete'),
 ]

@@ -20,6 +20,12 @@
                 <a href="{% url 'inventory:supplier_list' %}" class="nav-link">Proveedores</a>
                 <a href="{% url 'inventory:dailysalessession_list' %}" class="nav-link">Ventas</a>
                 <a href="{% url 'inventory:stockalert_list' %}" class="nav-link">Alertas Stock</a>
+                
+                {# Enlaces PARA MOVIMIENTOS DE STOCK #}
+                <a href="{% url 'inventory:stockmovement_list' %}" class="nav-link">Movimientos Stock</a>
+                {% if user.is_owner or user.is_admin %}
+                    <a href="{% url 'inventory:stockmovement_create' %}" class="nav-link">Registrar Mov. Stock</a>
+                {% endif %}
 
                 {# Enlaces específicos por rol #}
                 {% if user.is_owner %}

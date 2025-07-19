@@ -266,3 +266,72 @@ class SaleItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity_sold} de {self.product.name} en Venta del {self.sale_session.sale_date}"
+
+# --- MODELO PARA MOVIMIENTOS DE STOCK ---
+
+class StockMovement(models.Model):
+    """
+    Registra los movimientos de stock (entradas o salidas) de un producto.
+    """
+    MOVEMENT_TYPE_CHOICES = (
+        ('IN', 'Entrada (Compra, Devolución, Ajuste Positivo)'),
+        ('OUT', 'Salida (Merma, Uso Interno, Ajuste Negativo)'),
+    )
+
+    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='stock_movements',
+                                help_text="Producto afectado por el movimiento de stock.")
+    movement_type = models.CharField(max_length=3, choices=MOVEMENT_TYPE_CHOICES,
+                                     help_text="Tipo de movimiento: Entrada o Salida.")
+    quantity = models.DecimalField(max_digits=10, decimal_places=2,
+                                   help_text="Cantidad de unidades que se mueven.")
+    movement_date = models.DateTimeField(default=timezone.now,
+                                         help_text="Fecha y hora del movimiento de stock.")
+    description = models.TextField(blank=True, null=True,
+                                   help_text="Notas o razón del movimiento (ej. 'Compra a Proveedor X', 'Merma por producto dañado').")
+    registered_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True,
+                                      related_name='stock_movements_registered',
+                                      help_text="Usuario que registró este movimiento.")
+
+    class Meta:
+        verbose_name = "Movimiento de Stock"
+        verbose_name_plural = "Movimientos de Stock"
+        ordering = ['-movement_date', 'product__name']
+
+    def __str__(self):
+        return f"{self.get_movement_type_display()} de {self.quantity} {self.product.get_unit_of_measurement_display()} de {self.product.name} ({self.movement_date.strftime('%Y-%m-%d %H:%M')})"
+
+    def save(self, *args, **kwargs):
+        # Guardar el movimiento para obtener un PK si es nuevo
+        super().save(*args, **kwargs)
+        
+        # Necesitamos la instancia más reciente del producto desde la base de datos
+        # para evitar problemas de concurrencia si el stock ya cambió en otro lugar.
+        product = Product.objects.get(pk=self.product.pk)
+
+        if self.movement_type == 'IN':
+            product.current_stock += self.quantity
+        elif self.movement_type == 'OUT':
+            if product.current_stock < self.quantity:
+                print(f"Advertencia: Intentando reducir stock de {product.name} a negativo. Stock actual: {product.current_stock}, Cantidad a retirar: {self.quantity}")
+                product.current_stock = Decimal('0.00') # Asegura que no baje de cero
+            else:
+                product.current_stock -= self.quantity
+        
+        # Guarda el producto actualizado. Esto activará el método save() del producto,
+        # el cual ya contiene la lógica de `StockAlert`.
+        product.save()
+
+    def delete(self, *args, **kwargs):
+        """
+        Cuando se elimina un StockMovement, se revierte el cambio en el stock del producto.
+        """
+        product = Product.objects.get(pk=self.product.pk) # Obtener la instancia más reciente
+        if self.movement_type == 'IN':
+            # Si era una entrada, al eliminarla se resta la cantidad del stock
+            product.current_stock -= self.quantity
+        elif self.movement_type == 'OUT':
+            # Si era una salida, al eliminarla se suma la cantidad al stock
+            product.current_stock += self.quantity
+        
+        product.save() # Guarda el producto actualizado, lo que manejará las alertas.
+        super().delete(*args, **kwargs)
