@@ -1,10 +1,57 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Sum, Count, F
 from django.utils import timezone
+from django.contrib.auth import login
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+from django.contrib import messages
 
 # Importar los modelos necesarios desde el módulo inventory
 from inventory.models import DailySalesSession, SaleItem, StockAlert, Product, CustomUser, Role
+from inventory.forms import CustomUserCreationForm
+
+class SignupView(CreateView):
+    form_class = CustomUserCreationForm
+    template_name = 'registration/signup.html'
+    success_url = reverse_lazy('home')
+    
+    def form_valid(self, form):
+        # Guardar el nuevo usuario
+        response = super().form_valid(form)
+        
+        # Iniciar sesión automáticamente después del registro
+        login(self.request, self.object)
+        
+        # Mensaje de éxito
+        messages.success(self.request, f'¡Bienvenido/a {self.object.username}! Tu cuenta ha sido creada exitosamente.')
+        
+        return response
+    
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        # Aplicar estilos de Tailwind CSS a los campos de contraseña
+        form.fields['password1'].widget.attrs.update({
+            'class': 'pl-10 block w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring-coffee-500 sm:text-sm',
+            'placeholder': '••••••••'
+        })
+        form.fields['password2'].widget.attrs.update({
+            'class': 'pl-10 block w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring-coffee-500 sm:text-sm',
+            'placeholder': '••••••••'
+        })
+        return form
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Registro - CafeCentral'
+        return context
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Redirigir a la página de inicio si el usuario ya está autenticado
+        if request.user.is_authenticated:
+            return redirect('home')
+        return super().dispatch(request, *args, **kwargs)
+
 
 @login_required
 def home(request):

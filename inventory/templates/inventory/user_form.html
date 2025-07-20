@@ -3,11 +3,197 @@
 {% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="button">Guardar</button>
-        <a href="{% url 'inventory:user_list' %}" class="back-link">Cancelar</a>
-    </form>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <i class="fas fa-user-plus text-coffee-600 text-2xl"></i>
+            <h1 class="font-display text-3xl font-bold text-coffee-900">{{ page_title }}</h1>
+        </div>
+        <a href="{% url 'inventory:user_list' %}" class="bg-gray-200 hover:bg-gray-300 text-coffee-800 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+            <i class="fas fa-arrow-left"></i>
+            <span>Volver a Usuarios</span>
+        </a>
+    </div>
+
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-warm border border-coffee-200 p-6 mb-8">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Form Errors -->
+            {% if form.errors %}
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+                    <div class="flex items-center mb-2">
+                        <i class="fas fa-exclamation-circle text-red-500 mr-2"></i>
+                        <p class="font-medium">Por favor corrige los siguientes errores:</p>
+                    </div>
+                    <ul class="list-disc pl-5 space-y-1 text-sm">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            
+            <!-- Two Column Layout for Desktop -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Left Column -->
+                <div class="space-y-6">
+                    <!-- Username Field -->
+                    <div>
+                        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.username.label }}{% if form.username.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.username }}
+                        </div>
+                        {% if form.username.help_text %}
+                            <p class="mt-1 text-xs text-coffee-500">{{ form.username.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- First Name Field -->
+                    <div>
+                        <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.first_name.label }}{% if form.first_name.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.first_name }}
+                        </div>
+                    </div>
+                    
+                    <!-- Last Name Field -->
+                    <div>
+                        <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.last_name.label }}{% if form.last_name.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.last_name }}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <!-- Email Field -->
+                    <div>
+                        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.email.label }}{% if form.email.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.email }}
+                        </div>
+                    </div>
+                    
+                    <!-- Role Field -->
+                    <div>
+                        <label for="{{ form.role.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.role.label }}{% if form.role.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.role }}
+                        </div>
+                        <p class="mt-1 text-xs text-coffee-500">Selecciona el rol que tendrá este usuario en el sistema.</p>
+                    </div>
+                    
+                    <!-- Is Active Field -->
+                    {% if form.is_active %}
+                    <div>
+                        <div class="flex items-center">
+                            {{ form.is_active }}
+                            <label for="{{ form.is_active.id_for_label }}" class="ml-2 block text-sm font-medium text-coffee-800">
+                                {{ form.is_active.label }}
+                            </label>
+                        </div>
+                        <p class="mt-1 text-xs text-coffee-500">Los usuarios inactivos no pueden iniciar sesión.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Password Fields (only for creation) -->
+            {% if not user_obj %}
+            <div class="border-t border-coffee-100 pt-6 mt-6">
+                <h3 class="text-lg font-medium text-coffee-900 mb-4">Contraseña</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Password1 Field -->
+                    <div>
+                        <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.password1.label }}{% if form.password1.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.password1 }}
+                        </div>
+                        {% if form.password1.help_text %}
+                            <p class="mt-1 text-xs text-coffee-500">{{ form.password1.help_text }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Password2 Field -->
+                    <div>
+                        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
+                            {{ form.password2.label }}{% if form.password2.field.required %} <span class="text-red-500">*</span>{% endif %}
+                        </label>
+                        <div class="mt-1">
+                            {{ form.password2 }}
+                        </div>
+                        {% if form.password2.help_text %}
+                            <p class="mt-1 text-xs text-coffee-500">{{ form.password2.help_text }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Form Actions -->
+            <div class="flex flex-col sm:flex-row sm:justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-coffee-100">
+                <a href="{% url 'inventory:user_list' %}" class="bg-white border border-coffee-300 text-coffee-700 hover:bg-coffee-50 px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-times"></i>
+                    <span>Cancelar</span>
+                </a>
+                <button type="submit" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 shadow-warm">
+                    <i class="fas fa-save"></i>
+                    <span>Guardar Usuario</span>
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Help Card -->
+    <div class="bg-cream-50 rounded-xl shadow-sm border border-cream-200 p-6">
+        <div class="flex items-center space-x-3 mb-4">
+            <i class="fas fa-lightbulb text-cream-600 text-xl"></i>
+            <h3 class="font-display text-lg font-semibold text-coffee-900">Información sobre Usuarios</h3>
+        </div>
+        <div class="space-y-4 text-coffee-700">
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <div class="flex items-center space-x-2 mb-1">
+                    <i class="fas fa-crown text-yellow-600"></i>
+                    <span class="font-semibold">Propietario (OWNER)</span>
+                </div>
+                <p class="text-sm pl-6">Acceso completo al sistema, incluyendo gestión de usuarios y roles.</p>
+            </div>
+            
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div class="flex items-center space-x-2 mb-1">
+                    <i class="fas fa-user-shield text-blue-600"></i>
+                    <span class="font-semibold">Administrador (ADMIN)</span>
+                </div>
+                <p class="text-sm pl-6">Puede gestionar inventario, proveedores y ventas, pero no usuarios ni roles.</p>
+            </div>
+            
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                <div class="flex items-center space-x-2 mb-1">
+                    <i class="fas fa-user text-green-600"></i>
+                    <span class="font-semibold">Empleado (EMPLOYEE)</span>
+                </div>
+                <p class="text-sm pl-6">Acceso limitado a operaciones diarias como ventas y consulta de inventario.</p>
+            </div>
+        </div>
+    </div>
 {% endblock %}

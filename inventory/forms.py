@@ -8,27 +8,52 @@ from django.utils import timezone
 #logger = logging.getLogger(__name__)
 
 class CustomUserCreationForm(UserCreationForm):
-    # Formulario para crear usuarios.
+    """
+    Formulario para crear usuarios desde el panel de administración.
+    Solo accesible para usuarios con rol OWNER.
+    """
     class Meta(UserCreationForm.Meta):
         model = CustomUser
-        fields = UserCreationForm.Meta.fields + ('first_name', 'last_name', 'email', 'role',)
+        fields = ('username', 'first_name', 'last_name', 'email', 'role', 'password1', 'password2')
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Nombre de usuario'
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Nombre'
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'Apellido'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+                'placeholder': 'correo@ejemplo.com'
+            }),
+            'role': forms.Select(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50'
+            }),
+        }
     
-    # # --- MÉTODO PARA DEPURACIÓN ---    
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #     # Imprime los errores en la consola del servidor
-    #     if self.errors:
-    #         logger.error("Errores de validación en CustomUserCreationForm:")
-    #         for field, errors in self.errors.items():
-    #             for error in errors:
-    #                 logger.error(f"Campo '{field}': {error}")
-    #     else:
-    #         logger.info("Formulario CustomUserCreationForm validado exitosamente.")
-    #     return cleaned_data
-    # # --- FIN DEL MÉTODO DEPURACIÓN ---
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Aplicar estilos a los campos de contraseña que no se pueden definir en Meta.widgets
+        self.fields['password1'].widget.attrs.update({
+            'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+            'placeholder': '••••••••'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+            'placeholder': '••••••••'
+        })
 
 class CustomUserChangeForm(BaseUserChangeForm):
-    # Formulario para editar usuarios.
+    """
+    Formulario para editar usuarios existentes.
+    Solo accesible para usuarios con rol OWNER.
+    """
     class Meta:
         model = CustomUser
         fields = (
@@ -45,6 +70,32 @@ class CustomUserChangeForm(BaseUserChangeForm):
             'role': 'Rol del Usuario',
             'is_active': 'Activo',
         }
+        widgets = {
+            'username': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+            }),
+            'first_name': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+            }),
+            'last_name': forms.TextInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+            }),
+            'role': forms.Select(attrs={
+                'class': 'w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50',
+            }),
+            'is_active': forms.CheckboxInput(attrs={
+                'class': 'h-5 w-5 rounded border-coffee-300 text-coffee-600 focus:ring-coffee-500',
+            }),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Ocultar el campo de contraseña que viene por defecto en UserChangeForm
+        if 'password' in self.fields:
+            self.fields['password'].help_text = "Las contraseñas se almacenan cifradas y no se pueden ver. <a href=\"../password/\">Cambiar contraseña</a>."
 
 # --- Formularios para la Interfaz de Usuario (Frontend) ---
 ### CBV significa Vistas Basadas en Clases (Class-Based Views)

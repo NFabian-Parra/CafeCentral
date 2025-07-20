@@ -151,6 +151,25 @@
                     
                     <input type="hidden" name="next" value="{{ next }}" />
                 </form>
+                
+                <!-- Password Reset Link -->
+                <div class="mt-6">
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-coffee-200"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-2 bg-white text-coffee-500">¿Olvidaste tu contraseña?</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-center">
+                        <a href="{% url 'password_reset' %}" class="font-medium text-coffee-700 hover:text-coffee-800 transition-colors flex items-center justify-center space-x-2">
+                            <i class="fas fa-key"></i>
+                            <span>Restablecer contraseña</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         

@@ -151,3 +151,7 @@ LOGIN_URL = '/accounts/login/' # La URL a la que se redirige si el usuario no es
 
 # Redirección después de cerrar sesión
 LOGOUT_REDIRECT_URL = '/' # Redirige a la página de inicio después del logout
+
+# Configuración de correo electrónico para desarrollo
+# En desarrollo, los correos se mostrarán en la consola
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
