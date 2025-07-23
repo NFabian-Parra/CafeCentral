@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-gradient-to-br from-coffee-50 to-cream-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error del Servidor - CafeCentral</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Tailwind Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        coffee: {
+                            50: '#fdf8f6',
+                            100: '#f2e8e5',
+                            200: '#eaddd7',
+                            300: '#e0cfc5',
+                            400: '#d2bab0',
+                            500: '#bfa094',
+                            600: '#a18072',
+                            700: '#977669',
+                            800: '#846358',
+                            900: '#43302b',
+                            950: '#3c2415'
+                        },
+                        cream: {
+                            50: '#fefdfb',
+                            100: '#fef7ed',
+                            200: '#feebc8',
+                            300: '#fbd38d',
+                            400: '#f6ad55',
+                            500: '#ed8936',
+                            600: '#dd6b20',
+                            700: '#c05621',
+                            800: '#9c4221',
+                            900: '#7c2d12'
+                        }
+                    },
+                    fontFamily: {
+                        'display': ['Playfair Display', 'serif'],
+                        'body': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full font-body">
+    <div class="flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <div class="sm:mx-auto sm:w-full sm:max-w-md">
+            <!-- Logo -->
+            <div class="flex justify-center">
+                <div class="h-24 w-24 rounded-full bg-coffee-900 flex items-center justify-center">
+                    <i class="fas fa-coffee text-cream-100 text-4xl"></i>
+                </div>
+            </div>
+            
+            <h2 class="mt-6 text-center font-display text-3xl font-bold tracking-tight text-coffee-900">
+                500 - Error del Servidor
+            </h2>
+            <p class="mt-2 text-center text-sm text-coffee-600">
+                Lo sentimos, ha ocurrido un error en el servidor.
+            </p>
+        </div>
+
+        <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+            <div class="bg-white py-8 px-4 shadow-lg sm:rounded-lg sm:px-10 border border-coffee-200">
+                <div class="text-center">
+                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-6">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                    </div>
+                    
+                    <p class="text-coffee-700 mb-6">
+                        Ha ocurrido un error inesperado en el servidor. Nuestro equipo técnico ha sido notificado y estamos trabajando para solucionarlo lo antes posible.
+                    </p>
+                    
+                    <a href="/" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-coffee-600 hover:bg-coffee-700 transition-colors duration-200">
+                        <i class="fas fa-home mr-2"></i>
+                        Volver al Inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-8 text-center">
+            <p class="text-sm text-coffee-500">
+                &copy; 2025 CafeCentral. Todos los derechos reservados.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
