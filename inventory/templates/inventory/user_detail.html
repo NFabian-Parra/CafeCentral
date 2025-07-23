@@ -3,24 +3,273 @@
 {% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-
-    <p><strong>Nombre de Usuario:</strong> {{ user_obj.username }}</p>
-    <p><strong>Nombre:</strong> {{ user_obj.first_name|default:"N/A" }}</p>
-    <p><strong>Apellido:</strong> {{ user_obj.last_name|default:"N/A" }}</p>
-    <p><strong>Correo Electrónico:</strong> {{ user_obj.email|default:"N/A" }}</p>
-    <p><strong>Rol:</strong> {{ user_obj.role.get_name_display|default:"Sin Rol" }}</p>
-    <p><strong>Activo:</strong> {% if user_obj.is_active %}Sí{% else %}No{% endif %}</p>
-    <p><strong>Miembro del staff:</strong> {% if user_obj.is_staff %}Sí{% else %}No{% endif %}</p>
-    <p><strong>Superusuario:</strong> {% if user_obj.is_superuser %}Sí{% else %}No{% endif %}</p>
-    <p><strong>Fecha de Creación:</strong> {{ user_obj.date_joined|date:"d M Y H:i" }}</p>
-    <p><strong>Último Acceso:</strong> {{ user_obj.last_login|date:"d M Y H:i"|default:"Nunca" }}</p>
-
-    <div class="button-group">
-        <a href="{% url 'inventory:user_update' pk=user_obj.pk %}" class="button">Editar Usuario</a>
-        {% if user_obj.pk != user.pk %} {# Evita mostrar el botón de eliminar para el usuario logueado #}
-            <a href="{% url 'inventory:user_delete' pk=user_obj.pk %}" class="button button-delete">Eliminar Usuario</a>
-        {% endif %}
-        <a href="{% url 'inventory:user_list' %}" class="back-link">Volver a Usuarios</a>
+    <!-- Header Section with Breadcrumbs -->
+    <div class="mb-6">
+        <div class="flex items-center text-sm text-coffee-600 mb-4">
+            <a href="{% url 'home' %}" class="hover:text-coffee-800 transition-colors">Inicio</a>
+            <span class="mx-2">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </span>
+            <a href="{% url 'inventory:user_list' %}" class="hover:text-coffee-800 transition-colors">Usuarios</a>
+            <span class="mx-2">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </span>
+            <span class="text-coffee-800 font-medium">{{ user_obj.username }}</span>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+                <i class="fas fa-user text-coffee-600 text-2xl"></i>
+                <h1 class="font-display text-3xl font-bold text-coffee-900">{{ user_obj.username }}</h1>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="{% url 'inventory:user_update' pk=user_obj.pk %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+                    <i class="fas fa-edit"></i>
+                    <span>Editar</span>
+                </a>
+                {% if user_obj.pk != user.pk %}
+                    <a href="{% url 'inventory:user_delete' pk=user_obj.pk %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+                        <i class="fas fa-trash"></i>
+                        <span>Eliminar</span>
+                    </a>
+                {% endif %}
+                <a href="{% url 'inventory:user_list' %}" class="bg-gray-200 hover:bg-gray-300 text-coffee-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Volver</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column - User Info -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- User Details Card -->
+            <div class="bg-white rounded-xl shadow-warm border border-coffee-200 overflow-hidden">
+                <div class="bg-coffee-50 px-6 py-4 border-b border-coffee-200">
+                    <h2 class="font-display text-xl font-semibold text-coffee-900">Información del Usuario</h2>
+                </div>
+                <div class="p-6">
+                    <!-- Personal Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <!-- Full Name -->
+                        <div>
+                            <h3 class="text-sm font-medium text-coffee-600 mb-1">Nombre Completo</h3>
+                            {% if user_obj.first_name or user_obj.last_name %}
+                                <p class="text-coffee-900 font-medium">{{ user_obj.first_name }} {{ user_obj.last_name }}</p>
+                            {% else %}
+                                <p class="text-coffee-500 italic">No especificado</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Email -->
+                        <div>
+                            <h3 class="text-sm font-medium text-coffee-600 mb-1">Correo Electrónico</h3>
+                            {% if user_obj.email %}
+                                <p class="text-coffee-900 font-medium">
+                                    <a href="mailto:{{ user_obj.email }}" class="flex items-center space-x-1 text-blue-600 hover:text-blue-800 transition-colors">
+                                        <i class="fas fa-envelope"></i>
+                                        <span>{{ user_obj.email }}</span>
+                                    </a>
+                                </p>
+                            {% else %}
+                                <p class="text-coffee-500 italic">No especificado</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- System Information -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Role -->
+                        <div>
+                            <h3 class="text-sm font-medium text-coffee-600 mb-1">Rol</h3>
+                            {% if user_obj.role %}
+                                {% if user_obj.role.name == 'OWNER' %}
+                                    <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium flex items-center w-fit space-x-1">
+                                        <i class="fas fa-crown"></i>
+                                        <span>{{ user_obj.role.get_name_display }}</span>
+                                    </span>
+                                {% elif user_obj.role.name == 'ADMIN' %}
+                                    <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium flex items-center w-fit space-x-1">
+                                        <i class="fas fa-user-shield"></i>
+                                        <span>{{ user_obj.role.get_name_display }}</span>
+                                    </span>
+                                {% elif user_obj.role.name == 'EMPLOYEE' %}
+                                    <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center w-fit space-x-1">
+                                        <i class="fas fa-user"></i>
+                                        <span>{{ user_obj.role.get_name_display }}</span>
+                                    </span>
+                                {% endif %}
+                            {% else %}
+                                <span class="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm font-medium">Sin Rol</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Status -->
+                        <div>
+                            <h3 class="text-sm font-medium text-coffee-600 mb-1">Estado</h3>
+                            {% if user_obj.is_active %}
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium flex items-center w-fit space-x-1">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Activo</span>
+                                </span>
+                            {% else %}
+                                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium flex items-center w-fit space-x-1">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Inactivo</span>
+                                </span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Created Date -->
+                        <div>
+                            <h3 class="text-sm font-medium text-coffee-600 mb-1">Fecha de Creación</h3>
+                            <p class="text-coffee-900">{{ user_obj.date_joined|date:"d M Y H:i" }}</p>
+                        </div>
+                        
+                        <!-- Last Login -->
+                        <div>
+                            <h3 class="text-sm font-medium text-coffee-600 mb-1">Último Acceso</h3>
+                            {% if user_obj.last_login %}
+                                <p class="text-coffee-900">{{ user_obj.last_login|date:"d M Y H:i" }}</p>
+                            {% else %}
+                                <p class="text-coffee-500 italic">Nunca</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Activity History Card (Placeholder) -->
+            <div class="bg-white rounded-xl shadow-warm border border-coffee-200 overflow-hidden">
+                <div class="bg-coffee-50 px-6 py-4 border-b border-coffee-200 flex justify-between items-center">
+                    <h2 class="font-display text-xl font-semibold text-coffee-900">Historial de Actividad</h2>
+                    <a href="#" class="text-coffee-700 hover:text-coffee-900 text-sm font-medium transition-colors">
+                        Ver todo <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+                <div class="p-6">
+                    <div class="text-center py-6">
+                        <i class="fas fa-history text-coffee-300 text-3xl mb-2"></i>
+                        <p class="text-coffee-600">El historial de actividad se mostrará aquí</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column - Additional Info -->
+        <div class="space-y-6">
+            <!-- System Permissions Card -->
+            <div class="bg-white rounded-xl shadow-warm border border-coffee-200 overflow-hidden">
+                <div class="bg-coffee-50 px-6 py-4 border-b border-coffee-200">
+                    <h2 class="font-display text-xl font-semibold text-coffee-900">Permisos del Sistema</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <!-- Staff Status -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-coffee-700">Miembro del staff</span>
+                        {% if user_obj.is_staff %}
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Sí</span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">No</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Superuser Status -->
+                    <div class="flex items-center justify-between">
+                        <span class="text-coffee-700">Superusuario</span>
+                        {% if user_obj.is_superuser %}
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium">Sí</span>
+                        {% else %}
+                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">No</span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Role Permissions -->
+                    <div class="mt-6 pt-4 border-t border-coffee-100">
+                        <h3 class="text-sm font-medium text-coffee-600 mb-3">Permisos por Rol</h3>
+                        
+                        {% if user_obj.role %}
+                            {% if user_obj.role.name == 'OWNER' %}
+                                <ul class="space-y-2 text-sm text-coffee-700">
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span>Acceso completo al sistema</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span>Gestión de usuarios y roles</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span>Gestión de inventario y proveedores</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span>Gestión de ventas y reportes</span>
+                                    </li>
+                                </ul>
+                            {% elif user_obj.role.name == 'ADMIN' %}
+                                <ul class="space-y-2 text-sm text-coffee-700">
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span>Gestión de inventario y proveedores</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span>Gestión de ventas y reportes</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-times-circle text-red-500 mt-1"></i>
+                                        <span>No puede gestionar usuarios ni roles</span>
+                                    </li>
+                                </ul>
+                            {% elif user_obj.role.name == 'EMPLOYEE' %}
+                                <ul class="space-y-2 text-sm text-coffee-700">
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span>Consulta de inventario</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                                        <span>Registro de ventas</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-times-circle text-red-500 mt-1"></i>
+                                        <span>No puede modificar inventario</span>
+                                    </li>
+                                    <li class="flex items-start space-x-2">
+                                        <i class="fas fa-times-circle text-red-500 mt-1"></i>
+                                        <span>No puede gestionar usuarios ni roles</span>
+                                    </li>
+                                </ul>
+                            {% endif %}
+                        {% else %}
+                            <p class="text-coffee-500 italic">Sin permisos asignados</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions Card -->
+            <div class="bg-white rounded-xl shadow-warm border border-coffee-200 overflow-hidden">
+                <div class="bg-coffee-50 px-6 py-4 border-b border-coffee-200">
+                    <h2 class="font-display text-xl font-semibold text-coffee-900">Acciones Rápidas</h2>
+                </div>
+                <div class="p-6 space-y-3">
+                    <a href="{% url 'inventory:user_update' pk=user_obj.pk %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 w-full">
+                        <i class="fas fa-edit"></i>
+                        <span>Editar Usuario</span>
+                    </a>
+                    {% if user_obj.pk != user.pk %}
+                        <a href="{% url 'inventory:user_delete' pk=user_obj.pk %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2 w-full">
+                            <i class="fas fa-trash"></i>
+                            <span>Eliminar Usuario</span>
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
