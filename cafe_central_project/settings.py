@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Añadido para servir archivos estáticos en producción
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -134,6 +135,13 @@ STATICFILES_DIRS = [
 # STATIC_ROOT es para la recolección de archivos estáticos en producción.
 # No es estrictamente necesario para desarrollo, pero es buena práctica tenerlo.
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+# Configuración de Whitenoise para servir archivos estáticos en producción
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Whitenoise configuración adicional
+WHITENOISE_MAX_AGE = 31536000  # 1 año en segundos
+WHITENOISE_AUTOREFRESH = True  # Refresca los archivos estáticos en desarrollo
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
