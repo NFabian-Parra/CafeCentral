@@ -3,32 +3,146 @@
 {% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-    <a href="{% url 'inventory:role_create' %}" class="button">Crear Nuevo Rol</a>
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+    <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+        <i class="fas fa-user-tag text-coffee-600 text-2xl"></i>
+        <h1 class="font-display text-3xl font-bold text-coffee-900">{{ page_title }}</h1>
+    </div>
+    <a href="{% url 'inventory:role_create' %}"
+        class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-warm">
+        <i class="fas fa-plus"></i>
+        <span>Crear Nuevo Rol</span>
+    </a>
+</div>
 
-    {% if roles %}
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Descripción</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for role in roles %}
-            <tr>
-                <td><a href="{% url 'inventory:role_detail' pk=role.pk %}">{{ role.get_name_display }}</a></td>
-                <td>{{ role.description|default:"N/A" }}</td>
-                <td>
-                    <a href="{% url 'inventory:role_update' pk=role.pk %}" class="button small-button">Editar</a>
-                    <a href="{% url 'inventory:role_delete' pk=role.pk %}" class="button small-button button-delete">Eliminar</a>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p style="text-align: center;">No hay roles registrados.</p>
-    {% endif %}
+{% if roles %}
+<!-- Roles Grid for Mobile -->
+<div class="grid grid-cols-1 gap-4 md:hidden mb-6">
+    {% for role in roles %}
+    <div class="bg-white rounded-lg shadow-warm border border-coffee-200 p-4">
+        <div class="flex items-start justify-between mb-3">
+            <div class="flex-1">
+                <h3 class="font-semibold text-coffee-900 text-lg">
+                    <a href="{% url 'inventory:role_detail' pk=role.pk %}"
+                        class="hover:text-coffee-700 transition-colors">
+                        {{ role.get_name_display }}
+                    </a>
+                </h3>
+            </div>
+        </div>
+
+        <div class="mb-4 text-sm">
+            <span class="text-coffee-600">Descripción:</span>
+            <span class="font-semibold text-coffee-900">{{ role.description|default:"N/A" }}</span>
+        </div>
+
+        <div class="flex items-center justify-end">
+            <div class="flex space-x-2">
+                <a href="{% url 'inventory:role_update' pk=role.pk %}"
+                    class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                    <i class="fas fa-edit"></i>
+                    <span>Editar</span>
+                </a>
+                <a href="{% url 'inventory:role_delete' pk=role.pk %}"
+                    class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                    <i class="fas fa-trash"></i>
+                    <span>Eliminar</span>
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Roles Table for Desktop -->
+<div class="hidden md:block bg-white rounded-lg shadow-warm border border-coffee-200 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-coffee-200">
+            <thead class="bg-coffee-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-user-tag"></i>
+                            <span>Nombre</span>
+                        </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-info-circle"></i>
+                            <span>Descripción</span>
+                        </div>
+                    </th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-cogs"></i>
+                            <span>Acciones</span>
+                        </div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-coffee-100">
+                {% for role in roles %}
+                <tr class="hover:bg-coffee-25 transition-colors duration-150">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <a href="{% url 'inventory:role_detail' pk=role.pk %}"
+                                class="text-coffee-900 hover:text-coffee-700 font-medium transition-colors duration-200">
+                                {{ role.get_name_display }}
+                            </a>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                        {{ role.description|default:"N/A" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'inventory:role_update' pk=role.pk %}"
+                                class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                                <i class="fas fa-edit"></i>
+                                <span>Editar</span>
+                            </a>
+                            <a href="{% url 'inventory:role_delete' pk=role.pk %}"
+                                class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                                <i class="fas fa-trash"></i>
+                                <span>Eliminar</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-1 gap-4">
+    <div class="bg-white rounded-lg shadow-warm border border-coffee-200 p-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-coffee-600 text-sm">Total de Roles</p>
+                <p class="text-2xl font-bold text-coffee-900">{{ roles|length }}</p>
+            </div>
+            <i class="fas fa-user-tag text-coffee-400 text-2xl"></i>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Empty State -->
+<div class="text-center py-16">
+    <div class="bg-white rounded-2xl shadow-warm p-8 max-w-md mx-auto border border-coffee-200">
+        <i class="fas fa-user-tag text-coffee-400 text-4xl mb-4"></i>
+        <h2 class="font-display text-2xl font-semibold text-coffee-900 mb-4">No hay roles</h2>
+        <p class="text-coffee-600 mb-6">Aún no tienes roles definidos en el sistema. ¡Comienza creando tu primer rol!</p>
+        <a href="{% url 'inventory:role_create' %}"
+            class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+            <i class="fas fa-plus"></i>
+            <span>Crear Primer Rol</span>
+        </a>
+    </div>
+</div>
+{% endif %}
+
 {% endblock %}

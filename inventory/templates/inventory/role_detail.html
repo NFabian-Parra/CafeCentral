@@ -3,14 +3,85 @@
 {% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-
-    <p><strong>Nombre:</strong> {{ role.get_name_display }}</p>
-    <p><strong>Descripción:</strong> {{ role.description|default:"No hay descripción." }}</p>
-
-    <div class="button-group">
-        <a href="{% url 'inventory:role_update' pk=role.pk %}" class="button">Editar Rol</a>
-        <a href="{% url 'inventory:role_delete' pk=role.pk %}" class="button button-delete">Eliminar Rol</a>
-        <a href="{% url 'inventory:role_list' %}" class="back-link">Volver a Roles</a>
+<!-- Header Section with Breadcrumbs -->
+<div class="mb-6">
+    <div class="flex items-center text-sm text-coffee-600 mb-4">
+        <a href="{% url 'home' %}" class="hover:text-coffee-800 transition-colors">Inicio</a>
+        <span class="mx-2">
+            <i class="fas fa-chevron-right text-xs"></i>
+        </span>
+        <a href="{% url 'inventory:role_list' %}" class="hover:text-coffee-800 transition-colors">Roles</a>
+        <span class="mx-2">
+            <i class="fas fa-chevron-right text-xs"></i>
+        </span>
+        <span class="text-coffee-800 font-medium">{{ role.get_name_display }}</span>
     </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <i class="fas fa-user-tag text-coffee-600 text-2xl"></i>
+            <h1 class="font-display text-3xl font-bold text-coffee-900">{{ role.get_name_display }}</h1>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'inventory:role_update' pk=role.pk %}"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+                <i class="fas fa-edit"></i>
+                <span>Editar</span>
+            </a>
+            <a href="{% url 'inventory:role_delete' pk=role.pk %}"
+                class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+                <i class="fas fa-trash"></i>
+                <span>Eliminar</span>
+            </a>
+            <a href="{% url 'inventory:role_list' %}"
+                class="bg-gray-200 hover:bg-gray-300 text-coffee-800 px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-sm">
+                <i class="fas fa-arrow-left"></i>
+                <span>Volver</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="grid grid-cols-1 gap-6">
+    <!-- Role Details Card -->
+    <div class="bg-white rounded-xl shadow-warm border border-coffee-200 overflow-hidden">
+        <div class="bg-coffee-50 px-6 py-4 border-b border-coffee-200">
+            <h2 class="font-display text-xl font-semibold text-coffee-900">Detalles del Rol</h2>
+        </div>
+        <div class="p-6">
+            <!-- Description -->
+            <div class="mb-6">
+                <h3 class="text-sm font-medium text-coffee-600 mb-2">Descripción</h3>
+                <p class="text-coffee-900">{{ role.description|default:"No hay descripción disponible" }}</p>
+            </div>
+
+            <!-- Permissions (Placeholder) -->
+            <div>
+                <h3 class="text-sm font-medium text-coffee-600 mb-2">Permisos Asociados</h3>
+                <div class="bg-coffee-50 rounded-lg p-4 text-coffee-700">
+                    <p class="text-center">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Los permisos específicos para este rol se mostrarán aquí en futuras actualizaciones.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users with this Role (Placeholder) -->
+    <div class="bg-white rounded-xl shadow-warm border border-coffee-200 overflow-hidden">
+        <div class="bg-coffee-50 px-6 py-4 border-b border-coffee-200">
+            <h2 class="font-display text-xl font-semibold text-coffee-900">Usuarios con este Rol</h2>
+        </div>
+        <div class="p-6">
+            <div class="bg-coffee-50 rounded-lg p-4 text-coffee-700">
+                <p class="text-center">
+                    <i class="fas fa-users mr-2"></i>
+                    La lista de usuarios con este rol se mostrará aquí en futuras actualizaciones.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
