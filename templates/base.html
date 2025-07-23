@@ -7,18 +7,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}CafeCentral{% endblock %}</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:400;500&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Custom Tailwind Config -->
     <script>
         tailwind.config = {
             theme: {
@@ -61,130 +57,314 @@
                         'display': ['Playfair Display', 'serif'],
                         'body': ['Inter', 'system-ui', 'sans-serif'],
                         'mono': ['JetBrains Mono', 'monospace']
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-in-out forwards',
+                        'fade-out': 'fadeOut 0.3s ease-in-out forwards',
+                        'slide-in-right': 'slideInRight 0.3s ease-in-out forwards',
+                        'slide-out-right': 'slideOutRight 0.3s ease-in-out forwards'
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        fadeOut: {
+                            '0%': { opacity: '1' },
+                            '100%': { opacity: '0' }
+                        },
+                        slideInRight: {
+                            '0%': { transform: 'translateX(0)' }, 
+                            '100%': { transform: 'translateX(-80%)' } 
+                        },
+                        slideOutRight: {
+                            '0%': { transform: 'translateX(-80%)' }, 
+                            '100%': { transform: 'translateX(0)' } 
+                        }
                     }
                 }
             }
         }
     </script>
+    <style>
+        .page-content-wrapper {
+            transition: transform 0.3s ease-in-out;
+            /* overflow-x: hidden; Para evitar scroll horizontal no deseado, se puede descomentar si hay problemas */
+        }
+        .page-content-wrapper.active {
+            transform: translateX(-80vw); /* Ajusta el 80vw al ancho de tu menú */
+        }
+        .overflow-hidden-body {
+            overflow: hidden;
+        }
+    </style>
 </head>
-<body class="h-full bg-gradient-to-br from-cream-50 to-coffee-100 font-body">
-    <!-- Navigation Bar -->
-    <nav class="bg-gradient-to-r from-coffee-950 to-espresso-900 shadow-coffee border-b border-coffee-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Left side - Brand & Navigation -->
-                <div class="flex items-center space-x-8">
-                    <a href="{% url 'home' %}" class="flex items-center space-x-2 text-cream-100 hover:text-cream-200 transition-colors duration-200">
-                        <i class="fas fa-coffee text-2xl"></i>
-                        <span class="font-display text-xl font-semibold">CafeCentral</span>
-                    </a>
-                    
-                    {% if user.is_authenticated %}
-                        <div class="hidden md:flex items-center space-x-6">
-                            <a href="{% url 'inventory:product_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
-                                <i class="fas fa-box"></i>
-                                <span>Productos</span>
-                            </a>
-                            <a href="{% url 'inventory:supplier_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
-                                <i class="fas fa-truck"></i>
-                                <span>Proveedores</span>
-                            </a>
-                            <a href="{% url 'inventory:dailysalessession_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
-                                <i class="fas fa-chart-line"></i>
-                                <span>Ventas</span>
-                            </a>
-                            <a href="{% url 'inventory:stockalert_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
-                                <i class="fas fa-exclamation-triangle"></i>
-                                <span>Alertas</span>
-                            </a>
-                            <a href="{% url 'inventory:stockmovement_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
-                                <i class="fas fa-exchange-alt"></i>
-                                <span>Movimientos</span>
+<body class="h-full bg-gradient-to-br from-cream-50 to-coffee-100 font-body relative"> 
+
+    <div id="mobile-menu" class="fixed inset-y-0 right-0 w-4/5 max-w-sm bg-coffee-950 bg-opacity-98 z-50 hidden flex flex-col shadow-xl transform transition-transform duration-300 translate-x-full"> 
+        <div class="flex justify-between items-center p-4 border-b border-coffee-800">
+            <h2 class="text-cream-100 font-display text-xl font-semibold">Menú</h2>
+            <button id="mobile-menu-close" class="text-cream-200 hover:text-cream-100 focus:outline-none p-2 rounded-full hover:bg-coffee-800 transition-colors duration-200">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4">
+            <div class="space-y-3">
+                <a href="{% url 'inventory:product_list' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                    <i class="fas fa-box w-5 text-cream-300"></i>
+                    <span>Productos</span>
+                </a>
+                <a href="{% url 'inventory:supplier_list' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                    <i class="fas fa-truck w-5 text-cream-300"></i>
+                    <span>Proveedores</span>
+                </a>
+                <a href="{% url 'inventory:dailysalessession_list' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                    <i class="fas fa-chart-line w-5 text-cream-300"></i>
+                    <span>Ventas</span>
+                </a>
+                <a href="{% url 'inventory:stockalert_list' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                    <i class="fas fa-exclamation-triangle w-5 text-cream-300"></i>
+                    <span>Alertas</span>
+                </a>
+                <a href="{% url 'inventory:stockmovement_list' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                    <i class="fas fa-exchange-alt w-5 text-cream-300"></i>
+                    <span>Movimientos</span>
+                </a>
+                
+                {# CORRECCIÓN APLICADA AQUÍ #}
+                {% if user.is_authenticated %}
+                    {% if user.is_owner or user.is_admin %}
+                        <div class="mt-6 pt-4 border-t border-coffee-800">
+                            <h3 class="text-cream-200 text-sm font-semibold uppercase tracking-wider mb-3 px-4">Gestión</h3>
+                            
+                            <a href="{% url 'inventory:stockmovement_create' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                                <i class="fas fa-plus-circle w-5 text-cream-300"></i>
+                                <span>Registrar Movimiento</span>
                             </a>
                             
-                            {% if user.is_owner or user.is_admin %}
-                                <div class="relative group">
-                                    <button class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
-                                        <i class="fas fa-cog"></i>
-                                        <span>Gestión</span>
-                                        <i class="fas fa-chevron-down text-xs"></i>
-                                    </button>
-                                    <div class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                        <div class="py-1">
-                                            {% if user.is_owner or user.is_admin %}
-                                                <a href="{% url 'inventory:stockmovement_create' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
-                                                    <i class="fas fa-plus-circle"></i>
-                                                    <span>Registrar Movimiento</span>
-                                                </a>
-                                            {% endif %}
-                                            {% if user.is_owner %}
-                                                <a href="{% url 'inventory:role_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
-                                                    <i class="fas fa-users-cog"></i>
-                                                    <span>Gestionar Roles</span>
-                                                </a>
-                                                <a href="{% url 'inventory:user_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
-                                                    <i class="fas fa-users"></i>
-                                                    <span>Gestionar Usuarios</span>
-                                                </a>
-                                                <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
-                                                    <i class="fas fa-shield-alt"></i>
-                                                    <span>Admin Panel</span>
-                                                </a>
-                                            {% elif user.is_admin %}
-                                                <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
-                                                    <i class="fas fa-shield-alt"></i>
-                                                    <span>Admin Panel</span>
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
+                            {% if user.is_owner %}
+                                <a href="{% url 'inventory:role_list' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                                    <i class="fas fa-users-cog w-5 text-cream-300"></i>
+                                    <span>Gestionar Roles</span>
+                                </a>
+                                <a href="{% url 'inventory:user_list' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                                    <i class="fas fa-users w-5 text-cream-300"></i>
+                                    <span>Gestionar Usuarios</span>
+                                </a>
+                                <a href="{% url 'admin:index' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                                    <i class="fas fa-shield-alt w-5 text-cream-300"></i>
+                                    <span>Admin Panel</span>
+                                </a>
+                            {% elif user.is_admin %}
+                                <a href="{% url 'admin:index' %}" class="block text-cream-100 hover:bg-coffee-800 px-4 py-3 rounded-lg text-base font-medium transition-colors duration-200 flex items-center space-x-3">
+                                    <i class="fas fa-shield-alt w-5 text-cream-300"></i>
+                                    <span>Admin Panel</span>
+                                </a>
                             {% endif %}
                         </div>
                     {% endif %}
+                {% endif %}
+                {# FIN DE LA CORRECCIÓN #}
+            </div>
+        </div>
+        <div class="p-4 border-t border-coffee-800">
+            <div class="flex items-center justify-between">
+                <div class="text-cream-100">
+                    <span class="font-medium">{{ user.username }}</span>
+                    <span class="text-cream-300 text-xs block">{{ user.role.get_name_display|default:"Sin Rol" }}</span>
                 </div>
-                
-                <!-- Right side - User info & logout -->
-                <div class="flex items-center space-x-4">
-                    {% if user.is_authenticated %}
-                        <div class="flex items-center space-x-3">
-                            <div class="text-cream-200 text-sm">
-                                <span class="font-medium">{{ user.username }}</span>
-                                <span class="text-cream-300 text-xs block">{{ user.role.get_name_display|default:"Sin Rol" }}</span>
-                            </div>
-                            <form action="{% url 'logout' %}" method="post" class="inline">
-                                {% csrf_token %}
-                                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
-                                    <i class="fas fa-sign-out-alt"></i>
-                                    <span>Salir</span>
-                                </button>
-                            </form>
-                        </div>
-                    {% else %}
-                        <a href="{% url 'login' %}" class="bg-cream-600 hover:bg-cream-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
-                            <i class="fas fa-sign-in-alt"></i>
-                            <span>Iniciar Sesión</span>
+                <form action="{% url 'logout' %}" method="post" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Salir</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden"></div>
+
+    <div id="page-content-wrapper" class="min-h-screen flex flex-col"> {# Nuevo contenedor #}
+        <nav class="bg-gradient-to-r from-coffee-950 to-espresso-900 shadow-coffee border-b border-coffee-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center space-x-8">
+                        <a href="{% url 'home' %}" class="flex items-center space-x-2 text-cream-100 hover:text-cream-200 transition-colors duration-200">
+                            <i class="fas fa-coffee text-2xl"></i>
+                            <span class="font-display text-xl font-semibold">CafeCentral</span>
                         </a>
-                    {% endif %}
+                        
+                        {% if user.is_authenticated %}
+                            <div class="hidden md:flex items-center space-x-6">
+                                <a href="{% url 'inventory:product_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                                    <i class="fas fa-box"></i>
+                                    <span>Productos</span>
+                                </a>
+                                <a href="{% url 'inventory:supplier_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                                    <i class="fas fa-truck"></i>
+                                    <span>Proveedores</span>
+                                </a>
+                                <a href="{% url 'inventory:dailysalessession_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                                    <i class="fas fa-chart-line"></i>
+                                    <span>Ventas</span>
+                                </a>
+                                <a href="{% url 'inventory:stockalert_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>Alertas</span>
+                                </a>
+                                <a href="{% url 'inventory:stockmovement_list' %}" class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    <span>Movimientos</span>
+                                </a>
+                                
+                                {% if user.is_owner or user.is_admin %}
+                                    <div class="relative group">
+                                        <button class="text-cream-200 hover:text-cream-100 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                                            <i class="fas fa-cog"></i>
+                                            <span>Gestión</span>
+                                            <i class="fas fa-chevron-down text-xs"></i>
+                                        </button>
+                                        <div class="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                            <div class="py-1">
+                                                {% if user.is_owner or user.is_admin %}
+                                                    <a href="{% url 'inventory:stockmovement_create' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
+                                                        <i class="fas fa-plus-circle"></i>
+                                                        <span>Registrar Movimiento</span>
+                                                    </a>
+                                                {% endif %}
+                                                {% if user.is_owner %}
+                                                    <a href="{% url 'inventory:role_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
+                                                        <i class="fas fa-users-cog"></i>
+                                                        <span>Gestionar Roles</span>
+                                                    </a>
+                                                    <a href="{% url 'inventory:user_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
+                                                        <i class="fas fa-users"></i>
+                                                        <span>Gestionar Usuarios</span>
+                                                    </a>
+                                                    <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
+                                                        <i class="fas fa-shield-alt"></i>
+                                                        <span>Admin Panel</span>
+                                                    </a>
+                                                {% elif user.is_admin %}
+                                                    <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-coffee-50 flex items-center space-x-2">
+                                                        <i class="fas fa-shield-alt"></i>
+                                                        <span>Admin Panel</span>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        {% if user.is_authenticated %}
+                            <div class="md:hidden">
+                                <button id="mobile-menu-button" class="text-cream-200 hover:text-cream-100 focus:outline-none p-2 rounded-full hover:bg-coffee-800 transition-colors duration-200">
+                                    <i class="fas fa-bars text-xl"></i>
+                                    <span class="sr-only">Menú</span>
+                                </button>
+                            </div>
+                            
+                            <div class="flex items-center space-x-3">
+                                <div class="text-cream-200 text-sm hidden sm:block">
+                                    <span class="font-medium">{{ user.username }}</span>
+                                    <span class="text-cream-300 text-xs block">{{ user.role.get_name_display|default:"Sin Rol" }}</span>
+                                </div>
+                                <form action="{% url 'logout' %}" method="post" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        <span class="hidden sm:inline">Salir</span>
+                                    </button>
+                                </form>
+                            </div>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="bg-cream-600 hover:bg-cream-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center space-x-1">
+                                <i class="fas fa-sign-in-alt"></i>
+                                <span>Iniciar Sesión</span>
+                            </a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <!-- Main Content -->
-    <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {% block content %}
-        {% endblock %}
-    </main>
+        <main class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {% block content %}
+            {% endblock %}
+        </main>
 
-    <!-- Footer -->
-    <footer class="bg-coffee-950 border-t border-coffee-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div class="flex items-center justify-center space-x-2 text-cream-200">
-                <i class="fas fa-coffee"></i>
-                <span>&copy; 2025 CafeCentral. Todos los derechos reservados.</span>
+        <footer class="bg-coffee-950 border-t border-coffee-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div class="flex items-center justify-center space-x-2 text-cream-200">
+                    <i class="fas fa-coffee"></i>
+                    <span>&copy; 2025 CafeCentral. Todos los derechos reservados.</span>
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
+    </div> {# Cierre del nuevo contenedor page-content-wrapper #}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenuCloseButton = document.getElementById('mobile-menu-close');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+            const pageContentWrapper = document.getElementById('page-content-wrapper'); 
+            
+            function openMobileMenu() {
+                mobileMenuOverlay.classList.remove('hidden');
+                mobileMenuOverlay.classList.add('animate-fade-in'); 
+                
+                mobileMenu.classList.remove('hidden');
+                void mobileMenu.offsetWidth;
+                
+                mobileMenu.classList.remove('translate-x-full');
+                mobileMenu.classList.add('translate-x-0'); 
+                
+                pageContentWrapper.classList.add('active'); 
+                document.body.classList.add('overflow-hidden-body'); 
+            }
+            
+            function closeMobileMenu() {
+                mobileMenu.classList.remove('translate-x-0');
+                mobileMenu.classList.add('translate-x-full');
+                
+                mobileMenuOverlay.classList.remove('animate-fade-in');
+                mobileMenuOverlay.classList.add('animate-fade-out');
+                
+                pageContentWrapper.classList.remove('active'); 
+                
+                setTimeout(() => {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenuOverlay.classList.add('hidden');
+                    mobileMenuOverlay.classList.remove('animate-fade-out'); 
+                    document.body.classList.remove('overflow-hidden-body');
+                }, 300); 
+            }
+            
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', openMobileMenu);
+            }
+            
+            if (mobileMenuCloseButton) {
+                mobileMenuCloseButton.addEventListener('click', closeMobileMenu);
+            }
+            
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+            }
+            
+            const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', closeMobileMenu);
+            });
+        });
+    </script>
 </body>
 </html>
