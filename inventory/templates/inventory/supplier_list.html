@@ -3,39 +3,210 @@
 {% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-    <p><a href="{% url 'inventory:supplier_create' %}" class="button">Añadir Nuevo Proveedor</a></p>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <i class="fas fa-truck text-coffee-600 text-2xl"></i>
+            <h1 class="font-display text-3xl font-bold text-coffee-900">{{ page_title }}</h1>
+        </div>
+        <a href="{% url 'inventory:supplier_create' %}" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-warm">
+            <i class="fas fa-plus"></i>
+            <span>Añadir Nuevo Proveedor</span>
+        </a>
+    </div>
 
     {% if suppliers %}
-    <table>
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Contacto</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-                <th>Días de Entrega</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
+        <!-- Suppliers Grid for Mobile -->
+        <div class="grid grid-cols-1 gap-4 md:hidden mb-6">
             {% for supplier in suppliers %}
-            <tr>
-                <td><a href="{% url 'inventory:supplier_detail' pk=supplier.pk %}">{{ supplier.name }}</a></td>
-                <td>{{ supplier.contact_person|default:"N/A" }}</td>
-                <td>{{ supplier.phone|default:"N/A" }}</td>
-                <td>{{ supplier.email|default:"N/A" }}</td>
-                <td>{{ supplier.delivery_days|default:"N/A" }}</td>
-                <td>
-                    <a href="{% url 'inventory:supplier_update' pk=supplier.pk %}" class="button small-button">Editar</a>
-                    <a href="{% url 'inventory:supplier_delete' pk=supplier.pk %}" class="button small-button delete-button">Eliminar</a>
-                </td>
-            </tr>
+                <div class="bg-white rounded-lg shadow-warm border border-coffee-200 p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-coffee-900 text-lg">
+                                <a href="{% url 'inventory:supplier_detail' pk=supplier.pk %}" class="hover:text-coffee-700 transition-colors">
+                                    {{ supplier.name }}
+                                </a>
+                            </h3>
+                            <p class="text-coffee-600 text-sm">{{ supplier.contact_person|default:"Sin contacto" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 gap-2 mb-4 text-sm">
+                        {% if supplier.phone %}
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-phone-alt text-coffee-500"></i>
+                                <span class="text-coffee-700">{{ supplier.phone }}</span>
+                            </div>
+                        {% endif %}
+                        
+                        {% if supplier.email %}
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-envelope text-coffee-500"></i>
+                                <span class="text-coffee-700">{{ supplier.email }}</span>
+                            </div>
+                        {% endif %}
+                        
+                        {% if supplier.delivery_days %}
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-calendar-alt text-coffee-500"></i>
+                                <span class="text-coffee-700">{{ supplier.delivery_days }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center justify-end space-x-2">
+                        <a href="{% url 'inventory:supplier_update' pk=supplier.pk %}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                            <i class="fas fa-edit"></i>
+                            <span>Editar</span>
+                        </a>
+                        <a href="{% url 'inventory:supplier_delete' pk=supplier.pk %}" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                            <i class="fas fa-trash"></i>
+                            <span>Eliminar</span>
+                        </a>
+                    </div>
+                </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+
+        <!-- Suppliers Table for Desktop -->
+        <div class="hidden md:block bg-white rounded-lg shadow-warm border border-coffee-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-coffee-200">
+                    <thead class="bg-coffee-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-building"></i>
+                                    <span>Nombre</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-user"></i>
+                                    <span>Contacto</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-phone-alt"></i>
+                                    <span>Teléfono</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Email</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Días de Entrega</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>Acciones</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-coffee-100">
+                        {% for supplier in suppliers %}
+                            <tr class="hover:bg-coffee-25 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a href="{% url 'inventory:supplier_detail' pk=supplier.pk %}" class="text-coffee-900 hover:text-coffee-700 font-medium transition-colors duration-200">
+                                        {{ supplier.name }}
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {{ supplier.contact_person|default:"N/A" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {% if supplier.phone %}
+                                        <a href="tel:{{ supplier.phone }}" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                            {{ supplier.phone }}
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {% if supplier.email %}
+                                        <a href="mailto:{{ supplier.email }}" class="text-blue-600 hover:text-blue-800 transition-colors">
+                                            {{ supplier.email }}
+                                        </a>
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {{ supplier.delivery_days|default:"N/A" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <a href="{% url 'inventory:supplier_update' pk=supplier.pk %}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Editar</span>
+                                        </a>
+                                        <a href="{% url 'inventory:supplier_delete' pk=supplier.pk %}" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Eliminar</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white rounded-lg shadow-warm border border-coffee-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-coffee-600 text-sm">Total de Proveedores</p>
+                        <p class="text-2xl font-bold text-coffee-900">{{ suppliers|length }}</p>
+                    </div>
+                    <i class="fas fa-truck text-coffee-400 text-2xl"></i>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-warm border border-coffee-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-coffee-600 text-sm">Con Información de Contacto</p>
+                        <p class="text-2xl font-bold text-green-600">
+                            {% with count=0 %}
+                                {% for supplier in suppliers %}
+                                    {% if supplier.phone or supplier.email %}
+                                        {% with count=count|add:1 %}{% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ count }}
+                            {% endwith %}
+                        </p>
+                    </div>
+                    <i class="fas fa-address-book text-green-400 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
     {% else %}
-    <p style="text-align: center;">No hay proveedores registrados.</p>
+        <!-- Empty State -->
+        <div class="text-center py-16">
+            <div class="bg-white rounded-2xl shadow-warm p-8 max-w-md mx-auto border border-coffee-200">
+                <i class="fas fa-truck text-coffee-400 text-4xl mb-4"></i>
+                <h2 class="font-display text-2xl font-semibold text-coffee-900 mb-4">No hay proveedores</h2>
+                <p class="text-coffee-600 mb-6">Aún no tienes proveedores registrados. ¡Comienza agregando tu primer proveedor!</p>
+                <a href="{% url 'inventory:supplier_create' %}" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Añadir Primer Proveedor</span>
+                </a>
+            </div>
+        </div>
     {% endif %}
 
 {% endblock %}

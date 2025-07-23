@@ -3,34 +3,199 @@
 {% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-    <p><a href="{% url 'inventory:dailysalessession_create' %}" class="button">Crear Nueva Sesión</a></p>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <i class="fas fa-cash-register text-coffee-600 text-2xl"></i>
+            <h1 class="font-display text-3xl font-bold text-coffee-900">{{ page_title }}</h1>
+        </div>
+        <a href="{% url 'inventory:dailysalessession_create' %}" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center space-x-2 shadow-warm">
+            <i class="fas fa-plus"></i>
+            <span>Crear Nueva Sesión</span>
+        </a>
+    </div>
 
     {% if sessions %}
-    <table>
-        <thead>
-            <tr>
-                <th>Fecha</th>
-                <th>Registrado Por</th>
-                <th>Ingresos Totales</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
+        <!-- Filter Controls -->
+        <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div class="flex space-x-2">
+                <button class="bg-coffee-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    Todas
+                </button>
+                <button class="bg-white border border-coffee-300 text-coffee-700 hover:bg-coffee-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                    Este Mes
+                </button>
+                <button class="bg-white border border-coffee-300 text-coffee-700 hover:bg-coffee-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                    Esta Semana
+                </button>
+            </div>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-coffee-400"></i>
+                </div>
+                <input type="text" placeholder="Buscar sesiones..." class="pl-10 block w-full rounded-md border-coffee-300 shadow-sm focus:border-coffee-500 focus:ring focus:ring-coffee-200 focus:ring-opacity-50">
+            </div>
+        </div>
+
+        <!-- Sessions Grid for Mobile -->
+        <div class="grid grid-cols-1 gap-4 md:hidden mb-6">
             {% for session in sessions %}
-            <tr>
-                <td><a href="{% url 'inventory:dailysalessession_detail' pk=session.pk %}">{{ session.sale_date|date:"d M Y" }}</a></td>
-                <td>{{ session.registered_by_user.username|default:"N/A" }}</td>
-                <td>${{ session.total_revenue|floatformat:2 }}</td> {# Usa el property total_revenue #}
-                <td>
-                    <a href="{% url 'inventory:dailysalessession_update' pk=session.pk %}" class="button small-button">Editar</a>
-                    <a href="{% url 'inventory:dailysalessession_delete' pk=session.pk %}" class="button small-button delete-button">Eliminar</a>
-                </td>
-            </tr>
+                <div class="bg-white rounded-lg shadow-warm border border-coffee-200 p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-coffee-900 text-lg">
+                                <a href="{% url 'inventory:dailysalessession_detail' pk=session.pk %}" class="hover:text-coffee-700 transition-colors">
+                                    {{ session.sale_date|date:"d M Y" }}
+                                </a>
+                            </h3>
+                            <p class="text-coffee-600 text-sm">{{ session.registered_by_user.username|default:"N/A" }}</p>
+                        </div>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full flex items-center space-x-1">
+                            <i class="fas fa-dollar-sign"></i>
+                            <span>${{ session.total_revenue|floatformat:2 }}</span>
+                        </span>
+                    </div>
+                    
+                    <div class="flex items-center justify-end space-x-2">
+                        <a href="{% url 'inventory:dailysalessession_update' pk=session.pk %}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                            <i class="fas fa-edit"></i>
+                            <span>Editar</span>
+                        </a>
+                        <a href="{% url 'inventory:dailysalessession_delete' pk=session.pk %}" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                            <i class="fas fa-trash"></i>
+                            <span>Eliminar</span>
+                        </a>
+                    </div>
+                </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+
+        <!-- Sessions Table for Desktop -->
+        <div class="hidden md:block bg-white rounded-lg shadow-warm border border-coffee-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-coffee-200">
+                    <thead class="bg-coffee-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-calendar-day"></i>
+                                    <span>Fecha</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-user"></i>
+                                    <span>Registrado Por</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span>Ingresos Totales</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>Acciones</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-coffee-100">
+                        {% for session in sessions %}
+                            <tr class="hover:bg-coffee-25 transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a href="{% url 'inventory:dailysalessession_detail' pk=session.pk %}" class="text-coffee-900 hover:text-coffee-700 font-medium transition-colors duration-200">
+                                        {{ session.sale_date|date:"d M Y" }}
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {{ session.registered_by_user.username|default:"N/A" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap font-semibold text-green-600">
+                                    ${{ session.total_revenue|floatformat:2 }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex space-x-2">
+                                        <a href="{% url 'inventory:dailysalessession_update' pk=session.pk %}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                                            <i class="fas fa-edit"></i>
+                                            <span>Editar</span>
+                                        </a>
+                                        <a href="{% url 'inventory:dailysalessession_delete' pk=session.pk %}" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Eliminar</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow-warm border border-coffee-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-coffee-600 text-sm">Total de Sesiones</p>
+                        <p class="text-2xl font-bold text-coffee-900">{{ sessions|length }}</p>
+                    </div>
+                    <i class="fas fa-cash-register text-coffee-400 text-2xl"></i>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-warm border border-green-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-600 text-sm">Ingresos Totales</p>
+                        <p class="text-2xl font-bold text-green-600">
+                            ${% with total=0 %}
+                                {% for session in sessions %}
+                                    {% with total=total|add:session.total_revenue %}{% endwith %}
+                                {% endfor %}
+                                {{ total|floatformat:2 }}
+                            {% endwith %}
+                        </p>
+                    </div>
+                    <i class="fas fa-dollar-sign text-green-400 text-2xl"></i>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-warm border border-blue-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-600 text-sm">Promedio por Sesión</p>
+                        <p class="text-2xl font-bold text-blue-600">
+                            ${% with total=0 count=sessions|length %}
+                                {% for session in sessions %}
+                                    {% with total=total|add:session.total_revenue %}{% endwith %}
+                                {% endfor %}
+                                {% if count > 0 %}
+                                    {{ total|floatformat:2 }}
+                                {% else %}
+                                    0.00
+                                {% endif %}
+                            {% endwith %}
+                        </p>
+                    </div>
+                    <i class="fas fa-chart-line text-blue-400 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
     {% else %}
-    <p style="text-align: center;">No hay sesiones de ventas registradas.</p>
+        <!-- Empty State -->
+        <div class="text-center py-16">
+            <div class="bg-white rounded-2xl shadow-warm p-8 max-w-md mx-auto border border-coffee-200">
+                <i class="fas fa-cash-register text-coffee-400 text-4xl mb-4"></i>
+                <h2 class="font-display text-2xl font-semibold text-coffee-900 mb-4">No hay sesiones de venta</h2>
+                <p class="text-coffee-600 mb-6">Aún no tienes sesiones de venta registradas. ¡Comienza creando tu primera sesión!</p>
+                <a href="{% url 'inventory:dailysalessession_create' %}" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-plus"></i>
+                    <span>Crear Primera Sesión</span>
+                </a>
+            </div>
+        </div>
     {% endif %}
 {% endblock %}

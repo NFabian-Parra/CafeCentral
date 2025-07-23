@@ -3,51 +3,268 @@
 {% block title %}{{ page_title }} - CafeCentral{% endblock %}
 
 {% block content %}
-    <h1>{{ page_title }}</h1>
-    <p>Hay <strong>{{ active_alerts_count }}</strong> alertas de stock activas.</p>
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <i class="fas fa-exclamation-triangle text-amber-500 text-2xl"></i>
+            <h1 class="font-display text-3xl font-bold text-coffee-900">{{ page_title }}</h1>
+        </div>
+        <div class="bg-amber-100 border border-amber-200 rounded-lg px-4 py-2 flex items-center space-x-2">
+            <i class="fas fa-bell text-amber-600"></i>
+            <span class="text-amber-800 font-medium">{{ active_alerts_count }} alertas activas</span>
+        </div>
+    </div>
 
     {% if alerts %}
-    <table>
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Stock en Alerta</th>
-                <th>Nivel Mínimo</th>
-                <th>Fecha de Alerta</th>
-                <th>Estado</th>
-                <th>Resuelta Por</th>
-                <th>Fecha Resolución</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
+        <!-- Alert Status Tabs -->
+        <div class="mb-6 border-b border-coffee-200">
+            <nav class="flex space-x-8" aria-label="Tabs">
+                <button class="border-b-2 border-coffee-600 py-4 px-1 text-sm font-medium text-coffee-900">
+                    Todas las Alertas
+                </button>
+                <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-coffee-500 hover:text-coffee-700 hover:border-coffee-300">
+                    Alertas Activas
+                </button>
+                <button class="border-b-2 border-transparent py-4 px-1 text-sm font-medium text-coffee-500 hover:text-coffee-700 hover:border-coffee-300">
+                    Alertas Resueltas
+                </button>
+            </nav>
+        </div>
+
+        <!-- Alerts Grid for Mobile -->
+        <div class="grid grid-cols-1 gap-4 md:hidden mb-6">
             {% for alert in alerts %}
-            <tr {% if not alert.resolved %}class="alert-low-stock"{% endif %}> {# Usamos la clase CSS definida #}
-                <td><a href="{% url 'inventory:product_detail' pk=alert.product.pk %}">{{ alert.product.name }}</a></td>
-                <td>{{ alert.current_stock_at_alert }} {{ alert.product.get_unit_of_measurement_display }}</td>
-                <td>{{ alert.product.minimum_stock_level }} {{ alert.product.get_unit_of_measurement_display }}</td>
-                <td>{{ alert.alert_timestamp|date:"d M Y H:i" }}</td>
-                <td>
-                    {% if alert.resolved %}
-                        Resuelta
-                    {% else %}
-                        Activa
-                    {% endif %}
-                </td>
-                <td>{{ alert.resolved_by_user.username|default:"N/A" }}</td>
-                <td>{{ alert.resolved_timestamp|date:"d M Y H:i"|default:"N/A" }}</td>
-                <td>
-                    {% if not alert.resolved %}
-                        <a href="{% url 'inventory:stockalert_resolve' pk=alert.pk %}" class="button small-button">Resolver</a>
-                    {% else %}
-                        <a href="{% url 'inventory:stockalert_resolve' pk=alert.pk %}" class="button small-button">Ver/Editar</a>
-                    {% endif %}
-                </td>
-            </tr>
+                <div class="bg-white rounded-lg shadow-warm border {% if not alert.resolved %}border-amber-300 bg-amber-50{% else %}border-green-300 bg-green-50{% endif %} p-4">
+                    <div class="flex items-start justify-between mb-3">
+                        <div class="flex-1">
+                            <h3 class="font-semibold text-coffee-900 text-lg">
+                                <a href="{% url 'inventory:product_detail' pk=alert.product.pk %}" class="hover:text-coffee-700 transition-colors">
+                                    {{ alert.product.name }}
+                                </a>
+                            </h3>
+                            <p class="text-coffee-600 text-sm">{{ alert.alert_timestamp|date:"d M Y H:i" }}</p>
+                        </div>
+                        {% if alert.resolved %}
+                            <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full flex items-center space-x-1">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Resuelta</span>
+                            </span>
+                        {% else %}
+                            <span class="bg-amber-100 text-amber-800 text-xs font-medium px-2 py-1 rounded-full flex items-center space-x-1">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span>Activa</span>
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-2 mb-4 text-sm">
+                        <div>
+                            <span class="text-coffee-600">Stock en Alerta:</span>
+                            <span class="font-semibold {% if not alert.resolved %}text-red-600{% else %}text-coffee-900{% endif %}">
+                                {{ alert.current_stock_at_alert }} {{ alert.product.get_unit_of_measurement_display }}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-coffee-600">Nivel Mínimo:</span>
+                            <span class="font-semibold text-coffee-900">{{ alert.product.minimum_stock_level }} {{ alert.product.get_unit_of_measurement_display }}</span>
+                        </div>
+                        
+                        {% if alert.resolved %}
+                            <div>
+                                <span class="text-coffee-600">Resuelta Por:</span>
+                                <span class="font-semibold text-coffee-900">{{ alert.resolved_by_user.username|default:"N/A" }}</span>
+                            </div>
+                            <div>
+                                <span class="text-coffee-600">Fecha Resolución:</span>
+                                <span class="font-semibold text-coffee-900">{{ alert.resolved_timestamp|date:"d M Y H:i" }}</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center justify-end">
+                        {% if not alert.resolved %}
+                            <a href="{% url 'inventory:stockalert_resolve' pk=alert.pk %}" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                                <i class="fas fa-check"></i>
+                                <span>Resolver</span>
+                            </a>
+                        {% else %}
+                            <a href="{% url 'inventory:stockalert_resolve' pk=alert.pk %}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded text-xs font-medium transition-colors duration-200 flex items-center space-x-1">
+                                <i class="fas fa-eye"></i>
+                                <span>Ver Detalles</span>
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
             {% endfor %}
-        </tbody>
-    </table>
+        </div>
+
+        <!-- Alerts Table for Desktop -->
+        <div class="hidden md:block bg-white rounded-lg shadow-warm border border-coffee-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-coffee-200">
+                    <thead class="bg-coffee-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-box"></i>
+                                    <span>Producto</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-cubes"></i>
+                                    <span>Stock en Alerta</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-level-down-alt"></i>
+                                    <span>Nivel Mínimo</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <span>Fecha de Alerta</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span>Estado</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-user-check"></i>
+                                    <span>Resuelta Por</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Fecha Resolución</span>
+                                </div>
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-coffee-700 uppercase tracking-wider">
+                                <div class="flex items-center space-x-1">
+                                    <i class="fas fa-cogs"></i>
+                                    <span>Acciones</span>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-coffee-100">
+                        {% for alert in alerts %}
+                            <tr class="{% if not alert.resolved %}bg-amber-50 hover:bg-amber-100{% else %}hover:bg-coffee-25{% endif %} transition-colors duration-150">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <a href="{% url 'inventory:product_detail' pk=alert.product.pk %}" class="text-coffee-900 hover:text-coffee-700 font-medium transition-colors duration-200">
+                                        {{ alert.product.name }}
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="{% if not alert.resolved %}text-red-600 font-semibold{% else %}text-coffee-600{% endif %}">
+                                        {{ alert.current_stock_at_alert }} {{ alert.product.get_unit_of_measurement_display }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {{ alert.product.minimum_stock_level }} {{ alert.product.get_unit_of_measurement_display }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {{ alert.alert_timestamp|date:"d M Y H:i" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    {% if alert.resolved %}
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium flex items-center w-fit space-x-1">
+                                            <i class="fas fa-check-circle"></i>
+                                            <span>Resuelta</span>
+                                        </span>
+                                    {% else %}
+                                        <span class="bg-amber-100 text-amber-800 px-2 py-1 rounded-full text-xs font-medium flex items-center w-fit space-x-1">
+                                            <i class="fas fa-exclamation-circle"></i>
+                                            <span>Activa</span>
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {{ alert.resolved_by_user.username|default:"N/A" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-coffee-600">
+                                    {{ alert.resolved_timestamp|date:"d M Y H:i"|default:"N/A" }}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    {% if not alert.resolved %}
+                                        <a href="{% url 'inventory:stockalert_resolve' pk=alert.pk %}" class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1 w-fit">
+                                            <i class="fas fa-check"></i>
+                                            <span>Resolver</span>
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'inventory:stockalert_resolve' pk=alert.pk %}" class="bg-blue-100 hover:bg-blue-200 text-blue-700 px-3 py-1 rounded-md text-xs font-medium transition-colors duration-200 flex items-center space-x-1 w-fit">
+                                            <i class="fas fa-eye"></i>
+                                            <span>Ver Detalles</span>
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Summary Stats -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white rounded-lg shadow-warm border border-coffee-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-coffee-600 text-sm">Total de Alertas</p>
+                        <p class="text-2xl font-bold text-coffee-900">{{ alerts|length }}</p>
+                    </div>
+                    <i class="fas fa-bell text-coffee-400 text-2xl"></i>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-warm border border-amber-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-amber-600 text-sm">Alertas Activas</p>
+                        <p class="text-2xl font-bold text-amber-600">{{ active_alerts_count }}</p>
+                    </div>
+                    <i class="fas fa-exclamation-triangle text-amber-400 text-2xl"></i>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow-warm border border-green-200 p-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-600 text-sm">Alertas Resueltas</p>
+                        <p class="text-2xl font-bold text-green-600">
+                            {% with resolved_count=0 %}
+                                {% for alert in alerts %}
+                                    {% if alert.resolved %}
+                                        {% with resolved_count=resolved_count|add:1 %}{% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ resolved_count }}
+                            {% endwith %}
+                        </p>
+                    </div>
+                    <i class="fas fa-check-circle text-green-400 text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
     {% else %}
-    <p style="text-align: center;">No hay alertas de stock registradas.</p>
+        <!-- Empty State -->
+        <div class="text-center py-16">
+            <div class="bg-white rounded-2xl shadow-warm p-8 max-w-md mx-auto border border-coffee-200">
+                <i class="fas fa-check-circle text-green-400 text-4xl mb-4"></i>
+                <h2 class="font-display text-2xl font-semibold text-coffee-900 mb-4">No hay alertas de stock</h2>
+                <p class="text-coffee-600 mb-6">¡Genial! No hay alertas de stock activas en este momento. Todos los productos tienen niveles de stock adecuados.</p>
+                <a href="{% url 'inventory:product_list' %}" class="bg-coffee-600 hover:bg-coffee-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center space-x-2">
+                    <i class="fas fa-box"></i>
+                    <span>Ver Productos</span>
+                </a>
+            </div>
+        </div>
     {% endif %}
+
 {% endblock %}
