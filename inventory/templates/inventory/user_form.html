@@ -126,8 +126,11 @@
                         <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
                             {{ form.password1.label }}{% if form.password1.field.required %} <span class="text-red-500">*</span>{% endif %}
                         </label>
-                        <div class="mt-1">
+                        <div class="mt-1 relative">
                             {{ form.password1 }}
+                            <button type="button" id="toggle-password1" class="absolute inset-y-0 right-0 pr-3 flex items-center text-coffee-500 hover:text-coffee-700 focus:outline-none transition-colors duration-200">
+                                <i id="password1-icon" class="fas fa-eye text-sm"></i>
+                            </button>
                         </div>
                         {% if form.password1.help_text %}
                             <p class="mt-1 text-xs text-coffee-500">{{ form.password1.help_text }}</p>
@@ -139,8 +142,11 @@
                         <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-coffee-800 mb-1">
                             {{ form.password2.label }}{% if form.password2.field.required %} <span class="text-red-500">*</span>{% endif %}
                         </label>
-                        <div class="mt-1">
+                        <div class="mt-1 relative">
                             {{ form.password2 }}
+                            <button type="button" id="toggle-password2" class="absolute inset-y-0 right-0 pr-3 flex items-center text-coffee-500 hover:text-coffee-700 focus:outline-none transition-colors duration-200">
+                                <i id="password2-icon" class="fas fa-eye text-sm"></i>
+                            </button>
                         </div>
                         {% if form.password2.help_text %}
                             <p class="mt-1 text-xs text-coffee-500">{{ form.password2.help_text }}</p>
@@ -196,4 +202,61 @@
             </div>
         </div>
     </div>
+
+    <!-- Styles for Password Toggle -->
+    <style>
+        /* Ensure password fields have proper padding for the toggle button */
+        input[type="password"], input[type="text"] {
+            padding-right: 2.5rem !important;
+        }
+        
+        /* Hover effect for toggle button */
+        #toggle-password1:hover, #toggle-password2:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+            border-radius: 0.25rem;
+        }
+        
+        /* Focus styles for accessibility */
+        #toggle-password1:focus, #toggle-password2:focus {
+            outline: 2px solid #a18072;
+            outline-offset: 2px;
+            border-radius: 0.25rem;
+        }
+    </style>
+
+    <!-- JavaScript for Password Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to create password toggle functionality
+            function setupPasswordToggle(toggleButtonId, passwordFieldId, iconId) {
+                const toggleButton = document.getElementById(toggleButtonId);
+                const passwordField = document.getElementById(passwordFieldId);
+                const icon = document.getElementById(iconId);
+                
+                if (toggleButton && passwordField && icon) {
+                    toggleButton.addEventListener('click', function() {
+                        // Toggle password visibility
+                        if (passwordField.type === 'password') {
+                            passwordField.type = 'text';
+                            icon.classList.remove('fa-eye');
+                            icon.classList.add('fa-eye-slash');
+                            toggleButton.setAttribute('title', 'Ocultar contraseña');
+                        } else {
+                            passwordField.type = 'password';
+                            icon.classList.remove('fa-eye-slash');
+                            icon.classList.add('fa-eye');
+                            toggleButton.setAttribute('title', 'Mostrar contraseña');
+                        }
+                    });
+                    
+                    // Set initial title
+                    toggleButton.setAttribute('title', 'Mostrar contraseña');
+                }
+            }
+            
+            // Setup toggle for both password fields
+            setupPasswordToggle('toggle-password1', '{{ form.password1.id_for_label }}', 'password1-icon');
+            setupPasswordToggle('toggle-password2', '{{ form.password2.id_for_label }}', 'password2-icon');
+        });
+    </script>
 {% endblock %}
