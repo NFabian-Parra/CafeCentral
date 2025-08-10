@@ -8,6 +8,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.views import View # Importa la clase base View para vistas personalizadas
 from django.forms import inlineformset_factory # Para gestionar formularios relacionados
 from django.utils import timezone # Para asignar la hora de resolución
+from django.db import models # Para usar F() en consultas
 
 from .models import Product, StockMovement, Supplier, CustomUser, DailySalesSession, SaleItem, StockAlert, Role
 from .decorators import role_required # Tu decorador personalizado
@@ -136,11 +137,26 @@ class ProductListView(RoleRequiredMixin, ListView):
     model = Product
     template_name = 'inventory/product_list.html' # Reutiliza la plantilla existente
     context_object_name = 'products'
+    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Inventario de Productos'
+        
+        # Calcular estadísticas de productos
+        products = self.get_queryset()
+        
+        # Contar productos con stock bajo
+        context['productos_stock_bajo'] = products.filter(
+            current_stock__lte=models.F('minimum_stock_level')
+        ).count()
+        
+        # Contar productos con proveedor asignado
+        context['productos_con_proveedor'] = products.filter(
+            supplier__isnull=False
+        ).count()
+        
         return context
-    allowed_roles = ['OWNER', 'ADMIN', 'EMPLOYEE']
 
 
 class ProductDetailView(RoleRequiredMixin, DetailView):

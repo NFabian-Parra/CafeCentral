@@ -211,10 +211,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-coffee-600 text-sm">Stock Bajo</p>
-                <p class="text-2xl font-bold text-red-600">
-                    {% for product in products %}
-                    {% if product.current_stock <= product.minimum_stock_level %} {% if forloop.first %}1{% else %}{{
-                        forloop.counter }}{% endif %} {% endif %} {% empty %} 0 {% endfor %} </p>
+                <p class="text-2xl font-bold text-red-600">{{ productos_stock_bajo }}</p>
             </div>
             <i class="fas fa-exclamation-triangle text-red-400 text-2xl"></i>
         </div>
@@ -223,15 +220,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <p class="text-coffee-600 text-sm">Con Proveedor</p>
-                <p class="text-2xl font-bold text-green-600">
-                    {% for product in products %}
-                    {% if product.supplier %}
-                    {% if forloop.first %}1{% else %}{{ forloop.counter }}{% endif %}
-                    {% endif %}
-                    {% empty %}
-                    0
-                    {% endfor %}
-                </p>
+                <p class="text-2xl font-bold text-green-600">{{ productos_con_proveedor }}</p>
             </div>
             <i class="fas fa-truck text-green-400 text-2xl"></i>
         </div>
