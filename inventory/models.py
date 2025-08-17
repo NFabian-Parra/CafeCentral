@@ -131,12 +131,11 @@ class Product(models.Model):
         # Usamos Decimal para comparaciones precisas
         
         # 1. Lógica para CREAR alertas
-        # Crea una alerta si el stock BAJA y está por debajo/igual al mínimo,
+        # Crea una alerta si el stock está por debajo/igual al mínimo,
         # y si NO hay ya una alerta ACTIVA para este producto.
-        # (Esto evita duplicados y alertas falsas al subir stock o guardar sin cambios relevantes).
-        if (original_stock is not None and self.current_stock < original_stock and 
-            self.current_stock <= self.minimum_stock_level):
-            
+        # (Esto evita duplicados y alertas falsas).
+        if self.current_stock <= self.minimum_stock_level:
+            # Solo crear alerta si no existe una activa
             if not StockAlert.objects.filter(product=self, resolved=False).exists():
                 StockAlert.objects.create(
                     product=self,
@@ -172,8 +171,8 @@ class StockAlert(models.Model):
         verbose_name = "Alerta de Stock"
         verbose_name_plural = "Alertas de Stock"
         ordering = ['-alert_timestamp'] # Ordena las alertas más nuevas primero
-        # CRUCIAL: Solo permite UNA alerta activa por producto a la vez
-        unique_together = ('product', 'resolved') # Permite (product_id, False) una vez, y (product_id, True) varias veces.
+        # Nota: Removemos unique_together porque debe permitir múltiples alertas resueltas
+        # La lógica de negocio en Product.save() se encarga de evitar alertas duplicadas no resueltas
 
     def __str__(self):
         status = "Resuelta" if self.resolved else "Activa"

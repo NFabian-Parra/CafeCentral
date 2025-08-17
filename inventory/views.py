@@ -495,6 +495,16 @@ class StockMovementListView(RoleRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Historial de Movimientos de Stock'
+        
+        # Calcular estadísticas de movimientos
+        movements = self.get_queryset()
+        
+        # Contar movimientos de entrada (IN)
+        context['movimientos_entrada'] = movements.filter(movement_type='IN').count()
+        
+        # Contar movimientos de salida (OUT)
+        context['movimientos_salida'] = movements.filter(movement_type='OUT').count()
+        
         return context
 
 

@@ -188,16 +188,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-green-600 text-sm">Entradas</p>
-                        <p class="text-2xl font-bold text-green-600">
-                            {% with in_count=0 %}
-                                {% for movement in movements %}
-                                    {% if movement.movement_type == 'IN' %}
-                                        {% with in_count=in_count|add:1 %}{% endwith %}
-                                    {% endif %}
-                                {% endfor %}
-                                {{ in_count }}
-                            {% endwith %}
-                        </p>
+                        <p class="text-2xl font-bold text-green-600">{{ movimientos_entrada }}</p>
                     </div>
                     <i class="fas fa-arrow-down text-green-400 text-2xl"></i>
                 </div>
@@ -206,16 +197,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-red-600 text-sm">Salidas</p>
-                        <p class="text-2xl font-bold text-red-600">
-                            {% with out_count=0 %}
-                                {% for movement in movements %}
-                                    {% if movement.movement_type == 'OUT' %}
-                                        {% with out_count=out_count|add:1 %}{% endwith %}
-                                    {% endif %}
-                                {% endfor %}
-                                {{ out_count }}
-                            {% endwith %}
-                        </p>
+                        <p class="text-2xl font-bold text-red-600">{{ movimientos_salida }}</p>
                     </div>
                     <i class="fas fa-arrow-up text-red-400 text-2xl"></i>
                 </div>
