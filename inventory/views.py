@@ -277,6 +277,23 @@ class DailySalesSessionListView(RoleRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['page_title'] = 'Sesiones de Ventas Diarias'
+        
+        # Calcular estadísticas de las sesiones
+        sessions = self.get_queryset()
+        
+        # Total de sesiones
+        context['total_sessions'] = sessions.count()
+        
+        # Calcular ingresos totales
+        total_revenue = sum(session.total_revenue for session in sessions)
+        context['total_revenue'] = total_revenue
+        
+        # Calcular promedio por sesión
+        if context['total_sessions'] > 0:
+            context['average_per_session'] = total_revenue / context['total_sessions']
+        else:
+            context['average_per_session'] = 0
+        
         return context
 
 
